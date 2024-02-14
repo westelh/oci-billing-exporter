@@ -44,7 +44,7 @@ class Server(private val options: SubCommand.ServerOptions, tenancy: String, cli
         val allReports = service.iterateObjects(requestFactory.createListCostReportsRequest()).onFailure { cause ->
             return Result.failure(RuntimeException("Failed listing object storage bucket containing cost reports", cause))
         }.getOrThrow()
-        val newestReport = allReports.flatMap { it.listObjects.objects }.newest()
+        val newestReport = allReports.newest()
         val report = downloadManager.download(requestFactory.createGetCostReportRequest(newestReport.name)).onFailure { cause ->
             return Result.failure(RuntimeException("Failed downloading cost report from object storage", cause))
         }.getOrThrow()
