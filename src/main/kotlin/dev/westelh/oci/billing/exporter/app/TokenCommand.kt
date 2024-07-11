@@ -8,7 +8,6 @@ import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.file
 import com.oracle.bmc.auth.SessionTokenAuthenticationDetailsProvider
 import dev.westelh.oci.billing.exporter.api.ClientFactory
-import dev.westelh.oci.billing.exporter.core.Server
 import java.io.File
 
 class TokenCommand : SubCommand(name = "token", help = "Run server with session token") {

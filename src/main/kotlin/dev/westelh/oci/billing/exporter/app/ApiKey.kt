@@ -11,7 +11,6 @@ import com.oracle.bmc.auth.SimpleAuthenticationDetailsProvider
 import com.oracle.bmc.auth.SimplePrivateKeySupplier
 import com.oracle.bmc.auth.StringPrivateKeySupplier
 import dev.westelh.oci.billing.exporter.api.ClientFactory
-import dev.westelh.oci.billing.exporter.core.Server
 import java.io.File
 
 class ApiKey : SubCommand(name = "api_key", help = "Run server with api key") {
