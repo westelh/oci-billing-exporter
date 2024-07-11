@@ -4,7 +4,7 @@ import io.prometheus.metrics.core.datapoints.GaugeDataPoint
 import io.prometheus.metrics.core.metrics.Gauge
 
 class Metrics {
-    val labels: Array<String> = arrayOf("id", "service", "compartment", "region", "ad", "desc")
+    private val labels: Array<String> = arrayOf("id", "service", "compartment", "region", "ad", "desc")
 
     val billedQuantity: Gauge = Gauge.builder()
         .name("oci_billing_billed_quantity")
