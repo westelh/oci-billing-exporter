@@ -19,6 +19,9 @@ class Server(private val options: App.ServerOptions, tenancy: String, private va
     private val requestFactory = RequestFactory(tenancy)
     private val metrics = Metrics()
 
+    private val interval = options.interval
+    private val intervalOnError = 10000L
+
     override fun run() {
         JvmMetrics.builder().register()
         val server: HTTPServer = HTTPServer.builder()
@@ -29,12 +32,13 @@ class Server(private val options: App.ServerOptions, tenancy: String, private va
         while (true) {
             updateMetrics()
                 .onSuccess {
-                    logger.atInfo().log("Server suspends until next update after %d milliseconds", options.interval)
-                    Thread.sleep(options.interval)
+                    logger.atInfo().log("Server suspends until next update for %d milliseconds", interval)
+                    Thread.sleep(interval)
                 }
                 .onFailure {
                     logger.atSevere().log("Failed to update metrics: %s", it)
-                    Thread.sleep(10000)
+                    logger.atInfo().log("Server suspends until next try for %d milliseconds", intervalOnError)
+                    Thread.sleep(intervalOnError)
                 }
         }
     }
