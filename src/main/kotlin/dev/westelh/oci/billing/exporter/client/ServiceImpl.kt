@@ -1,6 +1,5 @@
 package dev.westelh.oci.billing.exporter.client
 
-import com.oracle.bmc.objectstorage.ObjectStorage
 import com.oracle.bmc.objectstorage.ObjectStoragePaginators
 import com.oracle.bmc.objectstorage.model.ObjectSummary
 import com.oracle.bmc.objectstorage.requests.GetObjectRequest
@@ -21,13 +20,11 @@ class ServiceImpl(client: ObjectStorage, downloadConfiguration: DownloadConfigur
         }
     }
 
-    override fun downloadObject(request: GetObjectRequest): Result<GetObjectResponse> {
-        return kotlin.runCatching {
-            downloadManager.getObject(request)
-        }
+    override fun downloadObjectByName(request: GetObjectRequest): GetObjectResponse {
+        return downloadManager.getObject(request)
     }
 
-    override fun listAllCostReports(tenantId: String): Result<MutableIterable<ObjectSummary>> {
+    override fun listAllCostReports(tenantId: String): MutableIterable<ObjectSummary> {
         val requestFactory = RequestFactory(tenantId)
         val request = requestFactory.createListCostReportsRequest()
         return iterateObjects(request)
