@@ -1,10 +1,7 @@
 package dev.westelh.oci.billing.exporter.app
 
 import com.google.common.flogger.FluentLogger
-import com.oracle.bmc.objectstorage.ObjectStorageClient
 import com.oracle.bmc.objectstorage.model.ObjectSummary
-import com.oracle.bmc.objectstorage.transfer.DownloadConfiguration
-import dev.westelh.oci.billing.exporter.api.*
 import dev.westelh.oci.billing.exporter.core.CsvParser
 import dev.westelh.oci.billing.exporter.core.Metrics
 import dev.westelh.oci.billing.exporter.core.RequestFactory
@@ -13,13 +10,12 @@ import io.prometheus.metrics.exporter.httpserver.HTTPServer
 import io.prometheus.metrics.instrumentation.jvm.JvmMetrics
 import java.util.zip.GZIPInputStream
 
-class Server(private val options: SubCommand.ServerOptions, tenancy: String, client: ObjectStorageClient): Runnable {
+class Server(private val options: App.ServerOptions, tenancy: String, private val auth: AuthArguments) : Runnable {
     companion object {
         val logger: FluentLogger = FluentLogger.forEnclosingClass()
     }
 
-    private val service = ConcreteClientService(client)
-    private val downloadManager = ObjectDownloadManager(client, DownloadConfiguration.builder().build())
+    private val serviceController = ServiceController(auth)
     private val requestFactory = RequestFactory(tenancy)
     private val metrics = Metrics()
 
@@ -44,19 +40,28 @@ class Server(private val options: SubCommand.ServerOptions, tenancy: String, cli
     }
 
     private fun updateMetrics(): Result<Unit> {
-        val allReports = service.iterateObjects(requestFactory.createListCostReportsRequest()).onFailure { cause ->
-            return Result.failure(RuntimeException("Failed listing object storage bucket containing cost reports", cause))
-        }.getOrThrow()
-        val newestReport = allReports.newest()
-        val report = downloadManager.download(requestFactory.createGetCostReportRequest(newestReport.name)).onFailure { cause ->
-            return Result.failure(RuntimeException("Failed downloading cost report from object storage", cause))
-        }.getOrThrow()
-        val items = CsvParser().parse(GZIPInputStream(report.inputStream)).items
-        for (i in items) {
-            metrics.record(i)
+        serviceController.getService()?.run {    // If client service is available
+            val allReports = iterateObjects(requestFactory.createListCostReportsRequest()).onFailure { cause ->
+                return Result.failure(
+                    RuntimeException(
+                        "Failed listing object storage bucket containing cost reports",
+                        cause
+                    )
+                )
+            }.getOrThrow()
+            val newestReport = allReports.newest()
+            val report =
+                downloadObject(requestFactory.createGetCostReportRequest(newestReport.name)).onFailure { cause ->
+                    return Result.failure(RuntimeException("Failed downloading cost report from object storage", cause))
+                }.getOrThrow()
+            val items = CsvParser().parse(GZIPInputStream(report.inputStream)).items
+            for (i in items) {
+                metrics.record(i)
+            }
+            logger.atInfo().log("Updated %s items", items.size)
+            return Result.success(Unit)
         }
-        logger.atInfo().log("Updated %s items", items.size)
-        return Result.success(Unit)
+        return Result.failure(RuntimeException("Skipped updating metrics because client is not ready."))
     }
 
     private fun Iterable<ObjectSummary>.newest() = maxBy { it.name }

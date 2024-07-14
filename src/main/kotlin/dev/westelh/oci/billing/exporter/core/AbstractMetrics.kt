@@ -7,7 +7,7 @@ abstract class AbstractMetrics {
     /**
      * Map of label name and its content source expressed as a function return.
      */
-    abstract val labelAndValueSources: Map<String, (BilledItem)->String>
+    abstract val labelAndValueSources: Map<String, (BilledItem) -> String>
 
     fun labelNames(): List<String> = labelAndValueSources.keys.toList()
 

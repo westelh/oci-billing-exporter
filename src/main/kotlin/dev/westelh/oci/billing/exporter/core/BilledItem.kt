@@ -49,7 +49,7 @@ class BilledItem {
     var description: String = ""
 
     @CsvBindByName(column = "cost/unitPrice")
-    var unitPrice: Double= 0.0
+    var unitPrice: Double = 0.0
 
     @CsvBindByName(column = "cost/unitPriceOverage")
     var unitPriceOverage: String = ""
