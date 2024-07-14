@@ -13,6 +13,9 @@ import com.github.ajalt.clikt.parameters.types.long
 import com.oracle.bmc.ConfigFileReader
 import com.oracle.bmc.Region
 import com.oracle.bmc.auth.*
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.time.withTimeout
+import kotlinx.coroutines.withTimeout
 
 // Common and abstract parameters that application need for authentication
 // Inherits OptionGroup and has high level abstraction
@@ -20,22 +23,30 @@ sealed class AuthArguments(name: String) : OptionGroup(name) {
     abstract fun makeClientSecretFromOptions(): ClientSecret
 }
 
+// Timeout for initialization of abstract principals
+val abstractPrincipalsTimeout = 5000L   // 5 seconds
+
 class FromInstancePrincipal : AuthArguments("Options for authentication by instance principals") {
-    private val impl = InstancePrincipalsAuthenticationDetailsProvider.builder().build()
-    override fun makeClientSecretFromOptions(): ClientSecret = ClientSecret(impl)
+    override fun makeClientSecretFromOptions(): ClientSecret {
+        val impl = InstancePrincipalsAuthenticationDetailsProvider.builder().build()
+        return ClientSecret(impl)
+    }
 }
 
 class FromResourcePrincipal : AuthArguments("Options for authentication by resource principals") {
-    private val impl = ResourcePrincipalAuthenticationDetailsProvider.builder().build()
-    override fun makeClientSecretFromOptions(): ClientSecret = ClientSecret(impl)
+    override fun makeClientSecretFromOptions(): ClientSecret {
+        val impl = ResourcePrincipalAuthenticationDetailsProvider.builder().build()
+        return ClientSecret(impl)
+    }
 }
 
 class FromConfigFile : AuthArguments("Options for authentication by config files") {
-    private val configFile by option().file(mustBeReadable = true, canBeDir = false).convert {
-        ConfigFileReader.parse(it.path)
+    private val configFile by option().file(mustBeReadable = true, canBeDir = false).required()
+    override fun makeClientSecretFromOptions(): ClientSecret {
+        val read = ConfigFileReader.parse(configFile.path)
+        val impl = ConfigFileAuthenticationDetailsProvider(read)
+        return ClientSecret(impl)
     }
-    private val impl = ConfigFileAuthenticationDetailsProvider(configFile)
-    override fun makeClientSecretFromOptions(): ClientSecret = ClientSecret(impl)
 }
 
 class FromSessionToken : AuthArguments("Options for authentication by session tokens") {
@@ -114,7 +125,7 @@ class App : CliktCommand(name = "oci_billing_exporter") {
     }
 
     override fun run() {
-        Server(serverOptions, target, auth)
+        Server(serverOptions, target, auth).run()
     }
 }
 
