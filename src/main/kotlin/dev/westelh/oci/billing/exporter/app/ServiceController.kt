@@ -1,9 +1,9 @@
 package dev.westelh.oci.billing.exporter.app
 
 import com.google.common.flogger.FluentLogger
-import dev.westelh.oci.billing.exporter.app.client.DefaultObjectStorageFactory
-import dev.westelh.oci.billing.exporter.app.client.Service
-import dev.westelh.oci.billing.exporter.app.client.ServiceImpl
+import dev.westelh.oci.billing.exporter.client.DefaultObjectStorageFactory
+import dev.westelh.oci.billing.exporter.client.Service
+import dev.westelh.oci.billing.exporter.client.ServiceImpl
 
 class ServiceController(private val authArguments: AuthArguments) {
     companion object

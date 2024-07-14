@@ -1,4 +1,4 @@
-package dev.westelh.oci.billing.exporter.app.client
+package dev.westelh.oci.billing.exporter.client
 
 import com.oracle.bmc.objectstorage.ObjectStorage
 import com.oracle.bmc.objectstorage.ObjectStoragePaginators
