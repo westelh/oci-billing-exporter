@@ -13,8 +13,6 @@ import com.github.ajalt.clikt.parameters.types.long
 import com.oracle.bmc.ConfigFileReader
 import com.oracle.bmc.Region
 import com.oracle.bmc.auth.*
-import dev.westelh.oci.billing.exporter.api.allRegions
-import dev.westelh.oci.billing.exporter.api.getRegionFromCode
 
 // Common and abstract parameters that application need for authentication
 // Inherits OptionGroup and has high level abstraction

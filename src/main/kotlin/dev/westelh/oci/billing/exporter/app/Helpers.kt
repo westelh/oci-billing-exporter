@@ -1,4 +1,4 @@
-package dev.westelh.oci.billing.exporter.api
+package dev.westelh.oci.billing.exporter.app
 
 import com.oracle.bmc.Region
 
