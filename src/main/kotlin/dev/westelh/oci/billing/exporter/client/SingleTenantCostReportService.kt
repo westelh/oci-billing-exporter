@@ -7,7 +7,7 @@ import com.oracle.bmc.objectstorage.responses.GetObjectResponse
 import com.oracle.bmc.objectstorage.transfer.DownloadConfiguration
 import com.oracle.bmc.objectstorage.transfer.DownloadManager
 
-class ServiceImpl(tenantId: String, objectStorageFactory: ObjectStorageFactory) : Service {
+class SingleTenantCostReportService(tenantId: String, objectStorageFactory: ObjectStorageFactory) : CostReportService {
     private val objectStorage = objectStorageFactory.createObjectStorage()
     private val objectStoragePaginators = ObjectStoragePaginators(objectStorage)
     private val downloadConfiguration = DownloadConfiguration.builder().build()

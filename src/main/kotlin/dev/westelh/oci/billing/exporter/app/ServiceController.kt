@@ -2,15 +2,15 @@ package dev.westelh.oci.billing.exporter.app
 
 import com.google.common.flogger.FluentLogger
 import dev.westelh.oci.billing.exporter.client.DefaultObjectStorageFactory
-import dev.westelh.oci.billing.exporter.client.Service
-import dev.westelh.oci.billing.exporter.client.ServiceImpl
+import dev.westelh.oci.billing.exporter.client.CostReportService
+import dev.westelh.oci.billing.exporter.client.SingleTenantCostReportService
 
 class ServiceController(private val authArguments: AuthArguments, private val targetTenantId: String) {
     companion object
 
     val logger: FluentLogger = FluentLogger.forEnclosingClass()
 
-    private var service: Service? = null
+    private var service: CostReportService? = null
 
     private fun initClientSecret(): ClientSecret? {
         return try {
@@ -21,12 +21,12 @@ class ServiceController(private val authArguments: AuthArguments, private val ta
         }
     }
 
-    private fun initService(): Service? {
+    private fun initService(): CostReportService? {
         val clientSecret = initClientSecret()
         if (clientSecret == null) return null
         else {
             return try {
-                ServiceImpl(targetTenantId, DefaultObjectStorageFactory(clientSecret))
+                SingleTenantCostReportService(targetTenantId, DefaultObjectStorageFactory(clientSecret))
             } catch (e: Exception) {
                 logger.atWarning().log("Failed to initialize client service with an exception: %s", e)
                 return null
@@ -34,10 +34,10 @@ class ServiceController(private val authArguments: AuthArguments, private val ta
         }
     }
 
-    fun getService(): Service? {
+    fun getService(): CostReportService? {
         if (service == null) service = initService()
         return service
     }
 }
 
-fun<T> ServiceController.whenServiceAvailable(runner: Service.()->T): T? = getService()?.run(runner)
+fun<T> ServiceController.whenServiceAvailable(runner: CostReportService.()->T): T? = getService()?.run(runner)
