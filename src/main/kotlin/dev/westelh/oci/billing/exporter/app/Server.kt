@@ -15,8 +15,7 @@ class Server(private val options: App.ServerOptions, private val tenancy: String
         val logger: FluentLogger = FluentLogger.forEnclosingClass()
     }
 
-    private val serviceController = ServiceController(auth)
-    private val requestFactory = RequestFactory(tenancy)
+    private val serviceController = ServiceController(auth, tenancy)
     private val metrics = Metrics()
 
     private val interval = options.interval
@@ -31,44 +30,21 @@ class Server(private val options: App.ServerOptions, private val tenancy: String
 
         while (true) {
             updateMetrics()
-                .onSuccess {
-                    logger.atInfo().log("Server suspends until next update for %d milliseconds", interval)
-                    Thread.sleep(interval)
-                }
-                .onFailure {
-                    logger.atSevere().log("Failed to update metrics: %s", it)
-                    logger.atInfo().log("Server suspends until next try for %d milliseconds", intervalOnError)
-                    Thread.sleep(intervalOnError)
-                }
         }
     }
 
-    private fun updateMetrics(): Result<Unit> {
-        serviceController.getService()?.run {    // If client service is available
-            val allReports = listAllCostReports(tenancy).onFailure { cause ->
-                return Result.failure(
-                    RuntimeException(
-                        "Failed listing object storage bucket containing cost reports",
-                        cause
-                    )
-                )
-            }.getOrThrow()
-            val newestReport = allReports.newest()
-            val report =
-                downloadObject(requestFactory.createGetCostReportRequest(newestReport.name)).onFailure { cause ->
-                    return Result.failure(RuntimeException("Failed downloading cost report from object storage", cause))
-                }.getOrThrow()
-            val items = CsvParser().parse(GZIPInputStream(report.inputStream)).items
+    private fun updateMetrics() {
+        serviceController.whenServiceAvailable {    // If client service is available
+            val allReports = listAllCostReports(tenancy)
+            val newest = allReports.newest()
+            val newestReport = downloadObjectByName(newest.name)
+            val items = CsvParser().parse(GZIPInputStream(newestReport.inputStream)).items
             for (i in items) {
                 metrics.record(i)
             }
             logger.atInfo().log("Updated %s items", items.size)
-            return Result.success(Unit)
         }
-        return Result.failure(RuntimeException("Skipped updating metrics because client is not ready."))
     }
-
-    private fun Iterable<ObjectSummary>.newest() = maxBy { it.name }
 }
 
-
+fun MutableIterable<ObjectSummary>.newest(): ObjectSummary = maxBy { it.name }
