@@ -8,4 +8,5 @@ import com.oracle.bmc.objectstorage.responses.GetObjectResponse
 interface Service {
     fun iterateObjects(request: ListObjectsRequest): Result<MutableIterable<ObjectSummary>>
     fun downloadObject(request: GetObjectRequest): Result<GetObjectResponse>
+    fun listAllCostReports(tenantId: String): Result<MutableIterable<ObjectSummary>>
 }

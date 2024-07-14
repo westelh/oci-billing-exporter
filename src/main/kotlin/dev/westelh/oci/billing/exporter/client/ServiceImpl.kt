@@ -26,4 +26,10 @@ class ServiceImpl(client: ObjectStorage, downloadConfiguration: DownloadConfigur
             downloadManager.getObject(request)
         }
     }
+
+    override fun listAllCostReports(tenantId: String): Result<MutableIterable<ObjectSummary>> {
+        val requestFactory = RequestFactory(tenantId)
+        val request = requestFactory.createListCostReportsRequest()
+        return iterateObjects(request)
+    }
 }

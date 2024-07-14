@@ -4,13 +4,13 @@ import com.google.common.flogger.FluentLogger
 import com.oracle.bmc.objectstorage.model.ObjectSummary
 import dev.westelh.oci.billing.exporter.core.CsvParser
 import dev.westelh.oci.billing.exporter.core.Metrics
-import dev.westelh.oci.billing.exporter.core.RequestFactory
+import dev.westelh.oci.billing.exporter.client.RequestFactory
 import dev.westelh.oci.billing.exporter.core.record
 import io.prometheus.metrics.exporter.httpserver.HTTPServer
 import io.prometheus.metrics.instrumentation.jvm.JvmMetrics
 import java.util.zip.GZIPInputStream
 
-class Server(private val options: App.ServerOptions, tenancy: String, private val auth: AuthArguments) : Runnable {
+class Server(private val options: App.ServerOptions, private val tenancy: String, private val auth: AuthArguments) : Runnable {
     companion object {
         val logger: FluentLogger = FluentLogger.forEnclosingClass()
     }
@@ -45,7 +45,7 @@ class Server(private val options: App.ServerOptions, tenancy: String, private va
 
     private fun updateMetrics(): Result<Unit> {
         serviceController.getService()?.run {    // If client service is available
-            val allReports = iterateObjects(requestFactory.createListCostReportsRequest()).onFailure { cause ->
+            val allReports = listAllCostReports(tenancy).onFailure { cause ->
                 return Result.failure(
                     RuntimeException(
                         "Failed listing object storage bucket containing cost reports",
