@@ -8,16 +8,15 @@ import com.oracle.bmc.objectstorage.responses.GetObjectResponse
 import com.oracle.bmc.objectstorage.transfer.DownloadConfiguration
 import com.oracle.bmc.objectstorage.transfer.DownloadManager
 
-class ServiceImpl(client: ObjectStorage, downloadConfiguration: DownloadConfiguration) : Service {
-    constructor(client: ObjectStorage) : this(client, DownloadConfiguration.builder().build())
+class ServiceImpl(tenantId: String, objectStorageFactory: ObjectStorageFactory) : Service {
+    private val objectStorage = objectStorageFactory.createObjectStorage()
+    private val objectStoragePaginators = ObjectStoragePaginators(objectStorage)
+    private val downloadConfiguration = DownloadConfiguration.builder().build()
+    private val downloadManager = DownloadManager(objectStorage, downloadConfiguration)
+    private val requestFactory = RequestFactory(tenantId)
 
-    private val objectStoragePaginators = ObjectStoragePaginators(client)
-    private val downloadManager = DownloadManager(client, downloadConfiguration)
-
-    override fun iterateObjects(request: ListObjectsRequest): Result<MutableIterable<ObjectSummary>> {
-        return kotlin.runCatching {
-            objectStoragePaginators.listObjectsRecordIterator(request)
-        }
+    private fun iterateObjects(request: ListObjectsRequest): MutableIterable<ObjectSummary> {
+        return objectStoragePaginators.listObjectsRecordIterator(request)
     }
 
     override fun downloadObjectByName(request: GetObjectRequest): GetObjectResponse {
@@ -25,7 +24,6 @@ class ServiceImpl(client: ObjectStorage, downloadConfiguration: DownloadConfigur
     }
 
     override fun listAllCostReports(tenantId: String): MutableIterable<ObjectSummary> {
-        val requestFactory = RequestFactory(tenantId)
         val request = requestFactory.createListCostReportsRequest()
         return iterateObjects(request)
     }
