@@ -2,13 +2,10 @@ package dev.westelh.oci.billing.exporter.app
 
 import com.google.common.flogger.FluentLogger
 import com.oracle.bmc.objectstorage.model.ObjectSummary
-import dev.westelh.oci.billing.exporter.core.CsvParser
-import dev.westelh.oci.billing.exporter.core.Metrics
-import dev.westelh.oci.billing.exporter.client.RequestFactory
-import dev.westelh.oci.billing.exporter.core.record
+import dev.westelh.oci.billing.exporter.core.*
 import io.prometheus.metrics.exporter.httpserver.HTTPServer
 import io.prometheus.metrics.instrumentation.jvm.JvmMetrics
-import java.util.zip.GZIPInputStream
+import java.io.InputStream
 
 class Server(private val options: App.ServerOptions, private val tenancy: String, private val auth: AuthArguments) : Runnable {
     companion object {
@@ -29,21 +26,40 @@ class Server(private val options: App.ServerOptions, private val tenancy: String
         logger.atInfo().log("Server in running on port %s", server.port)
 
         while (true) {
-            updateMetrics()
+            sequence()
         }
     }
 
-    private fun updateMetrics() {
-        serviceController.whenServiceAvailable {    // If client service is available
+    fun sequence() {
+        val loaded = downloadNewestReport()
+        val parsed = loaded?.let { parse(it) }
+        parsed?.let { updateMetrics(it) }
+    }
+
+    fun downloadNewestReport(): InputStream? = try {
+        serviceController.whenServiceAvailable {
             val allReports = listAllCostReports(tenancy)
             val newest = allReports.newest()
-            val newestReport = downloadObjectByName(newest.name)
-            val items = CsvParser().parse(GZIPInputStream(newestReport.inputStream)).items
-            for (i in items) {
-                metrics.record(i)
-            }
-            logger.atInfo().log("Updated %s items", items.size)
+            downloadObjectByName(newest.name)
         }
+    } catch(e: Exception) {
+        logger.atWarning().log("Failed to download newest cost report with an exception: %s", e)
+        null
+    }
+
+    fun parse(downloadStream: InputStream): BillingReport? = try {
+        CsvParser().parse(downloadStream)
+    } catch (e: Exception) {
+        logger.atWarning().log("Failed to parse a report loaded from the server with an exception: %s", e)
+        null
+    }
+
+    fun updateMetrics(newReport: BillingReport) = try {
+        for (i in newReport.items) {
+            metrics.record(i)
+        }
+    } catch (e: Exception) {
+        logger.atWarning().log("Failed to write a metrics with an exception: %s", e)
     }
 }
 

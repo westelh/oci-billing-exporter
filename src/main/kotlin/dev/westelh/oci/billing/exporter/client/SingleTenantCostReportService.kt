@@ -18,7 +18,7 @@ class SingleTenantCostReportService(tenantId: String, objectStorageFactory: Obje
         return objectStoragePaginators.listObjectsRecordIterator(request)
     }
 
-    override fun downloadObjectByName(name: String): GetObjectResponse {
+    override fun getObjectByName(name: String): GetObjectResponse {
         return downloadManager.getObject(requestFactory.createGetCostReportRequest(name))
     }
 
