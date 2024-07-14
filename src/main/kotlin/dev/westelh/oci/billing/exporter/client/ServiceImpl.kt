@@ -2,7 +2,6 @@ package dev.westelh.oci.billing.exporter.client
 
 import com.oracle.bmc.objectstorage.ObjectStoragePaginators
 import com.oracle.bmc.objectstorage.model.ObjectSummary
-import com.oracle.bmc.objectstorage.requests.GetObjectRequest
 import com.oracle.bmc.objectstorage.requests.ListObjectsRequest
 import com.oracle.bmc.objectstorage.responses.GetObjectResponse
 import com.oracle.bmc.objectstorage.transfer.DownloadConfiguration
@@ -19,8 +18,8 @@ class ServiceImpl(tenantId: String, objectStorageFactory: ObjectStorageFactory) 
         return objectStoragePaginators.listObjectsRecordIterator(request)
     }
 
-    override fun downloadObjectByName(request: GetObjectRequest): GetObjectResponse {
-        return downloadManager.getObject(request)
+    override fun downloadObjectByName(name: String): GetObjectResponse {
+        return downloadManager.getObject(requestFactory.createGetCostReportRequest(name))
     }
 
     override fun listAllCostReports(tenantId: String): MutableIterable<ObjectSummary> {
