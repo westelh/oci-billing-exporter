@@ -16,14 +16,14 @@ class ServiceController(private val authArguments: AuthArguments) {
         val clientSecret = try {
             authArguments.makeClientSecretFromOptions()
         } catch (e: Exception) {
-            logger.atWarning().log("Failed to initialize SDK with provided auth options", e)
+            logger.atWarning().log("Failed to initialize SDK with provided auth options with an exception: %s", e)
             return null
         }
         return try {
             val objectStorage = DefaultObjectStorageFactory(clientSecret).createObjectStorage()
             ServiceImpl(objectStorage)
         } catch (e: Exception) {
-            logger.atWarning().log("Failed to initialize client service", e)
+            logger.atWarning().log("Failed to initialize client service with an exception: %s", e)
             return null
         }
     }
