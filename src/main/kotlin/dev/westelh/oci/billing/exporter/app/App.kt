@@ -44,74 +44,79 @@ class FromConfigFile : AuthArguments("Options for authentication by config files
 }
 
 class FromSessionToken : AuthArguments("Options for authentication by session tokens") {
-    val sessionToken by option().required()
-    val tenantId by option()
-    val userId by option()
-    val privateKey by option().file(mustBeReadable = true, canBeDir = false)
-    val fingerprint by option()
-    val region by option().choice(*allRegions.codes()).convert { getRegionFromCode(it) }.required()
-    private val impl = SessionTokenAuthenticationDetailsProvider.builder()
-        .region(region)
-        .tenantId(tenantId)
-        .userId(userId)
-        .sessionToken(sessionToken)
-        .privateKeyFilePath(privateKey?.path)
-        .fingerprint(fingerprint)
-        .build()
+    private val sessionToken by option().required()
+    private val tenantId by option()
+    private val userId by option()
+    private val privateKey by option().file(mustBeReadable = true, canBeDir = false)
+    private val fingerprint by option()
+    private val region by option().choice(*allRegions.codes()).convert { getRegionFromCode(it) }.required()
 
-    override fun makeClientSecretFromOptions(): ClientSecret = ClientSecret(impl)
+    override fun makeClientSecretFromOptions(): ClientSecret {
+        val impl = SessionTokenAuthenticationDetailsProvider.builder()
+            .region(region)
+            .tenantId(tenantId)
+            .userId(userId)
+            .sessionToken(sessionToken)
+            .privateKeyFilePath(privateKey?.path)
+            .fingerprint(fingerprint)
+            .build()
+        return ClientSecret(impl)
+    }
 }
 
 abstract class ApiKeyBaseOptions(name: String) : AuthArguments(name) {
-    val tenantId by option().required()
-    val userId by option().required().check { it.isNotBlank() }
-    val fingerprint by option().required().check { it.isNotBlank() }
-    val passphrase by option()
-    val passphraseCharacters by option()
-    val region by option().choice(*allRegions.codes()).convert { getRegionFromCode(it) }.required()
-}
-
-class FromApiKey : ApiKeyBaseOptions("Options for authentication by api key") {
-    val privateKey by option().required().check { it.isNotBlank() }
-    val impl = SimpleAuthenticationDetailsProvider.builder()
+    private val tenantId by option().required()
+    private val userId by option().required().check { it.isNotBlank() }
+    private val fingerprint by option().required().check { it.isNotBlank() }
+    private val passphrase by option()
+    private val passphraseCharacters by option()
+    private val region by option().choice(*allRegions.codes()).convert { getRegionFromCode(it) }.required()
+    fun makeCommonPart(): SimpleAuthenticationDetailsProvider.SimpleAuthenticationDetailsProviderBuilder = SimpleAuthenticationDetailsProvider.builder()
         .region(region)
         .tenantId(tenantId)
         .userId(userId)
-        .privateKeySupplier(StringPrivateKeySupplier(privateKey))
         .fingerprint(fingerprint)
         .passPhrase(passphrase)
         .passphraseCharacters(passphraseCharacters?.toCharArray())
-        .build()
+}
 
-    override fun makeClientSecretFromOptions(): ClientSecret = ClientSecret(impl)
+class FromApiKey : ApiKeyBaseOptions("Options for authentication by api key") {
+    private val privateKey by option().required().check { it.isNotBlank() }
+
+    override fun makeClientSecretFromOptions(): ClientSecret {
+        val impl = makeCommonPart()
+            .privateKeySupplier(StringPrivateKeySupplier(privateKey))
+            .build()
+        return ClientSecret(impl)
+    }
 }
 
 class FromApiKeyFile : ApiKeyBaseOptions("Options for authentication by api key file") {
-    val privateKeyFile by option().file(mustBeReadable = true, canBeDir = false).required()
-    private val impl = SimpleAuthenticationDetailsProvider.builder()
-        .region(region)
-        .tenantId(tenantId)
-        .userId(userId)
-        .privateKeySupplier(SimplePrivateKeySupplier(privateKeyFile.path))
-        .passPhrase(passphrase)
-        .passphraseCharacters(passphraseCharacters?.toCharArray())
-        .build()
+    private val privateKeyFile by option().file(mustBeReadable = true, canBeDir = false).required()
 
-    override fun makeClientSecretFromOptions(): ClientSecret = ClientSecret(impl)
+    override fun makeClientSecretFromOptions(): ClientSecret {
+        val impl = makeCommonPart()
+            .privateKeySupplier(SimplePrivateKeySupplier(privateKeyFile.path))
+            .build()
+        return ClientSecret(impl)
+    }
 }
 
 class App : CliktCommand(name = "oci_billing_exporter") {
-    val target by option("--target", help = "Specify target tenancy to monitor by its id").required()
+    private val target by option("--target", help = "Specify target tenancy to monitor by its id").required()
 
     // Authentication method choice (Required)
-    val auth by option().groupChoice(
+    private val auth by option().groupChoice(
         "instance-principal" to FromInstancePrincipal(),
         "resource-principal" to FromResourcePrincipal(),
-        "config" to FromConfigFile()
+        "config" to FromConfigFile(),
+        "session-token" to FromSessionToken(),
+        "api-key" to FromApiKey(),
+        "api-key-file" to FromApiKeyFile()
     ).required()
 
     // Options related to the web server (Optional)
-    val serverOptions by ServerOptions()
+    private val serverOptions by ServerOptions()
 
     class ServerOptions : OptionGroup() {
         val interval by option(help = "Interval between refresh in milliseconds").long().default(21600000)
