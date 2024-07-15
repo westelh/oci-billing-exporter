@@ -125,7 +125,16 @@ class App : CliktCommand(name = "oci_billing_exporter") {
     }
 
     override fun run() {
-        Server(serverOptions, target, auth).run()
+        val server = Server(serverOptions, target, auth)
+        setShutdownHook(server)
+        server.run()
+    }
+
+    private fun setShutdownHook(server: Server) {
+        val worker = Thread {
+            server.shutdown()
+        }
+        Runtime.getRuntime().addShutdownHook(worker)
     }
 }
 
