@@ -28,6 +28,7 @@ dependencies {
     implementation("com.github.ajalt.clikt:clikt:4.2.2")
     implementation("com.google.flogger:flogger:0.8")
     implementation("com.google.flogger:flogger-system-backend:0.8")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
     testImplementation("org.jetbrains.kotlin:kotlin-test")
     implementation("com.opencsv:opencsv:5.9")
 }
@@ -45,6 +46,7 @@ application {
 }
 
 docker {
+    url = "unix:///Users/taisei/.colima/default/docker.sock"
     javaApplication {
         baseImage = "amazoncorretto:21"
     }
