@@ -17,9 +17,7 @@ class Server(private val options: App.ServerOptions, private val tenancy: String
 
     private val serviceController = ServiceController(auth, tenancy)
     private val metrics = Metrics()
-
-    private val interval = options.interval
-    private val intervalOnError = 10000L
+    private var loopHandler: Job? = null
 
     override fun run() {
         JvmMetrics.builder().register()
@@ -28,15 +26,29 @@ class Server(private val options: App.ServerOptions, private val tenancy: String
             .buildAndStart()
         logger.atInfo().log("Server in running on port %s", server.port)
 
-        while (true) {
-            sequence()
+        runBlocking {
+           loopHandler = launch {
+               try {
+                   while (true) {
+                       val result = sequence()
+                       if (result) delay(options.interval)
+                       else delay(options.intervalOnError)
+                   }
+               } finally {
+                   logger.atInfo().log("Server quit")
+               }
+           }
         }
     }
 
-    fun sequence() {
+    fun sequence(): Boolean {
         val loaded = downloadNewestReport()
         val parsed = loaded?.let { parse(it) }
-        parsed?.let { updateMetrics(it) }
+        parsed?.let {
+            updateMetrics(it)
+            return true
+        }
+        return false
     }
 
     fun downloadNewestReport(): InputStream? = try {
@@ -63,6 +75,12 @@ class Server(private val options: App.ServerOptions, private val tenancy: String
         }
     } catch (e: Exception) {
         logger.atWarning().log("Failed to write a metrics with an exception: %s", e)
+    }
+
+    fun shutdown() {
+        runBlocking {
+            loopHandler?.cancelAndJoin()
+        }
     }
 }
 

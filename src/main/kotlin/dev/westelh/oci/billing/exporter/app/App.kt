@@ -121,6 +121,7 @@ class App : CliktCommand(name = "oci_billing_exporter") {
 
     class ServerOptions : OptionGroup() {
         val interval by option(help = "Interval between refresh in milliseconds").long().default(21600000)
+        val intervalOnError by option(help = "Interval between refresh when something went wrong").long().default(10000)
         val port by option(help = "Bind port").int().default(8080)
     }
 
