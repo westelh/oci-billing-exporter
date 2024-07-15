@@ -8,9 +8,8 @@ import io.prometheus.metrics.instrumentation.jvm.JvmMetrics
 import kotlinx.coroutines.*
 import java.io.InputStream
 import java.lang.Runnable
-import kotlin.coroutines.coroutineContext
 
-class Server(private val options: App.ServerOptions, private val tenancy: String, private val auth: AuthArguments) : Runnable {
+class Server(private val options: App.ServerOptions, private val tenancy: String, auth: AuthArguments) : Runnable {
     companion object {
         val logger: FluentLogger = FluentLogger.forEnclosingClass()
     }

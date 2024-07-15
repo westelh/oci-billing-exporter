@@ -13,18 +13,12 @@ import com.github.ajalt.clikt.parameters.types.long
 import com.oracle.bmc.ConfigFileReader
 import com.oracle.bmc.Region
 import com.oracle.bmc.auth.*
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.time.withTimeout
-import kotlinx.coroutines.withTimeout
 
 // Common and abstract parameters that application need for authentication
 // Inherits OptionGroup and has high level abstraction
 sealed class AuthArguments(name: String) : OptionGroup(name) {
     abstract fun makeClientSecretFromOptions(): ClientSecret
 }
-
-// Timeout for initialization of abstract principals
-val abstractPrincipalsTimeout = 5000L   // 5 seconds
 
 class FromInstancePrincipal : AuthArguments("Options for authentication by instance principals") {
     override fun makeClientSecretFromOptions(): ClientSecret {
