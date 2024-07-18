@@ -13,6 +13,7 @@ import com.github.ajalt.clikt.parameters.types.long
 import com.oracle.bmc.ConfigFileReader
 import com.oracle.bmc.Region
 import com.oracle.bmc.auth.*
+import dev.westelh.oci.billing.exporter.app.config.configFromYamlFile
 
 // Common and abstract parameters that application need for authentication
 // Inherits OptionGroup and has high level abstraction
@@ -123,6 +124,9 @@ class App : CliktCommand(name = "oci_billing_exporter") {
         val intervalOnError by option(help = "Interval between refresh when something went wrong").long().default(10000)
         val port by option(help = "Bind port").int().default(8080)
     }
+
+    private val configFile by option("--config").file(mustBeReadable = true, canBeDir = false).required()
+    private val config = configFromYamlFile(configFile)
 
     override fun run() {
         val server = Server(serverOptions, target, auth)

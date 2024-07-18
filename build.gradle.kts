@@ -29,6 +29,9 @@ dependencies {
     implementation("com.google.flogger:flogger:0.8")
     implementation("com.google.flogger:flogger-system-backend:0.8")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.17.2")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.17.2")
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.17.2")
     testImplementation("org.jetbrains.kotlin:kotlin-test")
     implementation("com.opencsv:opencsv:5.9")
 }
