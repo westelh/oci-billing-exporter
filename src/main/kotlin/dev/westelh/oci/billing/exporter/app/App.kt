@@ -14,6 +14,8 @@ import com.oracle.bmc.ConfigFileReader
 import com.oracle.bmc.Region
 import com.oracle.bmc.auth.*
 import dev.westelh.oci.billing.exporter.app.config.configFromYamlFile
+import dev.westelh.oci.billing.exporter.client.allRegions
+import dev.westelh.oci.billing.exporter.client.getRegionFromCode
 
 // Common and abstract parameters that application need for authentication
 // Inherits OptionGroup and has high level abstraction
