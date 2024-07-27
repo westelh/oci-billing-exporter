@@ -6,7 +6,6 @@ import com.oracle.bmc.objectstorage.model.ObjectSummary
 import com.oracle.bmc.responses.AsyncHandler
 import dev.westelh.oci.billing.exporter.client.CachedObjectStorage
 import dev.westelh.oci.billing.exporter.client.await
-import kotlinx.coroutines.*
 
 class Client(adp: AuthenticationDetailsProvider, targetTenantId: String) {
     companion object {
@@ -15,12 +14,8 @@ class Client(adp: AuthenticationDetailsProvider, targetTenantId: String) {
 
     private val requestFactory: RequestFactory = SimpleRequestFactory(targetTenantId)
     private val osFactory = CachedObjectStorage(adp)
-    private val coroutineScope = CoroutineScope(Job())
-    private val exceptionHandler = CoroutineExceptionHandler { _, t ->
-        logger.atWarning().withCause(t).log("Unhandled exception from client code inside a coroutine")
-    }
 
-    suspend fun listAllCostReport(): Deferred<List<ObjectSummary>?> = coroutineScope.async(exceptionHandler) {
+    suspend fun listAllCostReport(): List<ObjectSummary>? {
         val ret = mutableListOf<ObjectSummary>()
         var nextStartWith = ""
         // Enumeration
@@ -28,11 +23,11 @@ class Client(adp: AuthenticationDetailsProvider, targetTenantId: String) {
             val request = requestFactory.buildListCostReportsRequest(nextStartWith)
             val response = kotlin.runCatching {
                 osFactory.getObjectStorageAsync().listObjects(request, CustomAsyncHandler()).await()
-            }.getOrElse { return@async null /* Fast-return on error */}
+            }.getOrElse { return null /* Fast-return on error */ }
             ret.addAll(response.listObjects.objects)
             nextStartWith = response.listObjects.nextStartWith ?: ""
         } while (nextStartWith.isNotBlank())
-        ret
+        return ret
     }
 
     // suspend fun listUsageReport():
