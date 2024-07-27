@@ -5,7 +5,7 @@ import com.oracle.bmc.objectstorage.ObjectStorageAsync
 import com.oracle.bmc.objectstorage.ObjectStorageAsyncClient
 
 class CachedObjectStorage(adp: AuthenticationDetailsProvider) : ObjectStorageFactory {
-    val os = ObjectStorageAsyncClient.builder().build(adp)
+    private val os: ObjectStorageAsyncClient = ObjectStorageAsyncClient.builder().build(adp)
     override fun getObjectStorageAsync(): ObjectStorageAsync {
         return os
     }
