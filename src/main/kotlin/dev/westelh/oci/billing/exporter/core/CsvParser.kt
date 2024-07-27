@@ -7,7 +7,7 @@ import java.io.InputStreamReader
 class CsvParser : CostReportParser {
     override fun parse(inputStream: InputStream): CostReport {
         val reader = InputStreamReader(inputStream)
-        val parser = CsvToBeanBuilder<BilledItem>(reader).withType(BilledItem::class.java).build()
+        val parser = CsvToBeanBuilder<CostReport.Item>(reader).withType(CostReport.Item::class.java).build()
         return CostReport(parser.parse())
     }
 }
