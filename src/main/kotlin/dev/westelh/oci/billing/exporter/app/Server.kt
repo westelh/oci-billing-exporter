@@ -1,25 +1,55 @@
 package dev.westelh.oci.billing.exporter.app
 
 import com.google.common.flogger.FluentLogger
+import dev.westelh.oci.billing.exporter.core.CsvParser
+import dev.westelh.oci.billing.exporter.core.Metrics
+import dev.westelh.oci.billing.exporter.core.record
 import io.prometheus.metrics.exporter.httpserver.HTTPServer
 import io.prometheus.metrics.instrumentation.jvm.JvmMetrics
 import kotlinx.coroutines.*
 import java.io.Closeable
 import java.net.InetAddress
 import java.net.UnknownHostException
+import java.util.zip.GZIPInputStream
 import kotlin.coroutines.cancellation.CancellationException
 
 class Server(private val config: Config.ServerConfig, private val client: Client) : Runnable, Closeable {
     private var httpServer: HTTPServer? = null
-
+    private val metrics: Metrics = Metrics()
     private val coroutineScope: CoroutineScope = CoroutineScope(Job())
     private val updateJob: Job = coroutineScope.launch {
         try {
             while (isActive) {
-                update().let { succeeded ->
-                    if (succeeded) delay(config.interval)
-                    else delay(config.intervalOnError)
+                withContext(Dispatchers.IO) {
+                    // Enumerate all items
+                    val all = client.listAllCostReport().orEmpty()
+                    logger.atFine().log("Update Job: listing all cost report: got %d items", all.count())
+
+                    // Pick latest
+                    val latest = if (all.isNotEmpty()) {
+                        all.maxBy { it.name }   // pick latest by its name
+                    } else {
+                        return@withContext  // fast-return when list is empty
+                    }
+                    logger.atFine().log("Update Job: selected latest cost report: %s", latest)
+
+                    // Download
+                    val download = client.downloadByName(latest.name) ?: return@withContext // fast-return when download failed
+                    logger.atFine().log("Update Job: downloaded cost report object")
+
+                    // Parse
+                    val parser = CsvParser()
+                    val report = parser.parse(GZIPInputStream(download.inputStream)) ?: return@withContext   // fast-return when parse failed
+                    logger.atFine().log("Update Job: parsed cost report csv")
+
+                    // Write metrics
+                    for (item in report.items) metrics.record(item)
+                    logger.atFine().log("Update Job: wrote %d items in metrics", report.items.count())
+
+                    logger.atInfo().log("Update job finished")
                 }
+                logger.atInfo().log("Suspending update job for %d milliseconds", config.interval)
+                delay(config.interval)
             }
         } catch (e: CancellationException) {
             logger.atSevere().withCause(e).log("Serer job is canceled because cancellation is propagated from subroutine.")
@@ -38,20 +68,6 @@ class Server(private val config: Config.ServerConfig, private val client: Client
     override fun run() {
         httpServer = startHTTPServer()
         updateJob.start()
-    }
-
-    suspend fun update(): Boolean {
-        val all = withContext(Dispatchers.IO) {
-            client.listAllCostReport().await()
-        }
-        if (all != null) {
-            logger.atInfo().log("Downloaded %d items.", all.count())
-            return true
-        }
-        else {
-            logger.atWarning().log("Download failed. resulted content: ", all)
-            return false
-        }
     }
 
     override fun close() {
