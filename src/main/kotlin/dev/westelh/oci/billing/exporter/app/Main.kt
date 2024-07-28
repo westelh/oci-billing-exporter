@@ -44,8 +44,7 @@ class Run : CliktCommand() {
 
     override fun run() {
         val config = configFromYamlFile(configFile)
-        val auth = auth(config.auth).getOrThrow()
-        val client = Client(auth, config.targetTenantId)
+        val client = Client(config)
         val server = Server(config.server, client)
         Runtime.getRuntime().addShutdownHook(Thread {
             server.close()

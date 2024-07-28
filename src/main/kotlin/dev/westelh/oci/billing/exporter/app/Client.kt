@@ -1,19 +1,20 @@
 package dev.westelh.oci.billing.exporter.app
 
 import com.google.common.flogger.FluentLogger
-import com.oracle.bmc.auth.AuthenticationDetailsProvider
 import com.oracle.bmc.objectstorage.model.ObjectSummary
 import com.oracle.bmc.responses.AsyncHandler
-import dev.westelh.oci.billing.exporter.client.CachedObjectStorage
+import dev.westelh.oci.billing.exporter.client.ObjectStorageFactory
+import dev.westelh.oci.billing.exporter.client.OnDemandObjectStorage
 import dev.westelh.oci.billing.exporter.client.await
 
-class Client(adp: AuthenticationDetailsProvider, targetTenantId: String) {
+class Client(config: Config) {
     companion object {
         val logger: FluentLogger = FluentLogger.forEnclosingClass()
     }
 
-    private val requestFactory: RequestFactory = SimpleRequestFactory(targetTenantId)
-    private val osFactory = CachedObjectStorage(adp)
+    private val adp = loadAuthConfig(config.auth).getOrThrow()
+    private val requestFactory: RequestFactory = SimpleRequestFactory(config.targetTenantId)
+    private val osFactory: ObjectStorageFactory = OnDemandObjectStorage(adp)
 
     suspend fun listAllCostReport(): List<ObjectSummary>? {
         val ret = mutableListOf<ObjectSummary>()
