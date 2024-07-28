@@ -7,9 +7,9 @@ abstract class AbstractMetrics {
     /**
      * Map of label name and its content source expressed as a function return.
      */
-    abstract val labelAndValueSources: Map<String, (BilledItem) -> String>
+    abstract val labelAndValueSources: Map<String, (CostReport.Item) -> String>
 
     fun labelNames(): List<String> = labelAndValueSources.keys.toList()
 
-    fun getLabelValueOf(labelName: String, billedItem: BilledItem) = labelAndValueSources[labelName]?.invoke(billedItem)
+    fun getLabelValueOf(labelName: String, billedItem: CostReport.Item) = labelAndValueSources[labelName]?.invoke(billedItem)
 }
