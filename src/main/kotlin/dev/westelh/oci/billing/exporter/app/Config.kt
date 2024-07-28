@@ -25,7 +25,7 @@ class Config {
             val maxRetries: Int = 3
 
             // The size in bytes of the individual parts as which the object is downloaded.
-            val partSizeInBytes: Int = 1500 // MTU
+            val partSizeInBytes: Int = 4194304
 
             // The number of parallel operations to perform when downloading an object in multiple parts.
             // Decreasing this value will make multipart downloads less resource intensive,but they may take longer.
@@ -33,7 +33,7 @@ class Config {
             // but the download process will consume more system resources and network bandwidth.
             val parallelDownloads: Int = 5
             // The threshold size in bytes at which we will start splitting the object into parts.
-            val multipartDownloadThresholdInBytes: Long = 1 * 1024 * 1024  // 1MB
+            val multipartDownloadThresholdInBytes: Long = 4194304
 
             // Initial backoff, before a retry is performed.
             val initialBackoff: Duration = Duration.ofSeconds(3)
