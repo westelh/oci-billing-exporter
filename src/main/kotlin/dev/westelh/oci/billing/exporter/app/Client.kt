@@ -1,6 +1,7 @@
 package dev.westelh.oci.billing.exporter.app
 
 import com.google.common.flogger.FluentLogger
+import com.oracle.bmc.model.BmcException
 import com.oracle.bmc.objectstorage.model.ObjectSummary
 import com.oracle.bmc.objectstorage.responses.GetObjectResponse
 import com.oracle.bmc.objectstorage.transfer.DownloadManager
@@ -36,16 +37,23 @@ class Client(config: Config) {
 
     // suspend fun listUsageReport():
 
-    fun downloadByName(objectName: String): GetObjectResponse {
+    fun downloadByName(objectName: String): GetObjectResponse? {
+        logger.atInfo().log("Started downloading %s", objectName)
+
         val dlManager = DownloadManager(osFactory.getObjectStorage(), dlManagerConfig)
 
         val request = requestFactory.buildGetReportRequest(objectName)
         logger.atFinest().log("Prepared request for downloading object by name: %s", request)
 
-        val response = dlManager.getObject(request)
-        logger.atFine().log("Downloaded %d bytes", response.contentLength)
-
-        return response
+        // Downloading may fail
+        try {
+            val response = dlManager.getObject(request)
+            logger.atFine().log("Downloaded %d bytes", response.contentLength)
+            return response
+        } catch (e: BmcException) {
+            logger.logWithBmcException(e)
+            return null
+        }
     }
 
     class CustomAsyncHandler<Req, Res> : AsyncHandler<Req, Res> {
