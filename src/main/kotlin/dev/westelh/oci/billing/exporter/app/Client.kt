@@ -2,6 +2,8 @@ package dev.westelh.oci.billing.exporter.app
 
 import com.google.common.flogger.FluentLogger
 import com.oracle.bmc.objectstorage.model.ObjectSummary
+import com.oracle.bmc.objectstorage.responses.GetObjectResponse
+import com.oracle.bmc.objectstorage.transfer.DownloadManager
 import com.oracle.bmc.responses.AsyncHandler
 import dev.westelh.oci.billing.exporter.client.ObjectStorageFactory
 import dev.westelh.oci.billing.exporter.client.OnDemandObjectStorage
@@ -15,6 +17,7 @@ class Client(config: Config) {
     private val adp = loadAuthConfig(config.auth).getOrThrow()
     private val requestFactory: RequestFactory = SimpleRequestFactory(config.targetTenantId)
     private val osFactory: ObjectStorageFactory = OnDemandObjectStorage(adp)
+    private val dlManagerConfig = buildDownloadConfiguration(config.server.download)
 
     suspend fun listAllCostReport(): List<ObjectSummary>? {
         val ret = mutableListOf<ObjectSummary>()
@@ -32,6 +35,18 @@ class Client(config: Config) {
     }
 
     // suspend fun listUsageReport():
+
+    fun downloadByName(objectName: String): GetObjectResponse {
+        val dlManager = DownloadManager(osFactory.getObjectStorage(), dlManagerConfig)
+
+        val request = requestFactory.buildGetReportRequest(objectName)
+        logger.atFinest().log("Prepared request for downloading object by name: %s", request)
+
+        val response = dlManager.getObject(request)
+        logger.atFine().log("Downloaded %d bytes", response.contentLength)
+
+        return response
+    }
 
     class CustomAsyncHandler<Req, Res> : AsyncHandler<Req, Res> {
         override fun onSuccess(req: Req, res: Res) {
