@@ -25,13 +25,13 @@ class Metrics {
         .register()
 }
 
-fun Metrics.record(item: BilledItem) {
+fun Metrics.record(item: CostReport.Item) {
     cost.labelBy(item).set(item.myCost)
     billedQuantity.labelBy(item).set(item.billedQuantity)
     unitPrice.labelBy(item).set(item.unitPrice)
 }
 
-private fun Gauge.labelBy(report: BilledItem): GaugeDataPoint {
+private fun Gauge.labelBy(report: CostReport.Item): GaugeDataPoint {
     return labelValues(
         report.resourceId,
         report.service,
