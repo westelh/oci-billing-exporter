@@ -19,7 +19,7 @@ class Config {
         val interval: Long = 21600000L
         val intervalOnError: Long = 10000L
 
-        val downloadConfig: DownloadConfig = DownloadConfig()
+        val download: DownloadConfig = DownloadConfig()
         class DownloadConfig {
             // Maximum number of retries, not including the initial attempt.
             val maxRetries: Int = 3
