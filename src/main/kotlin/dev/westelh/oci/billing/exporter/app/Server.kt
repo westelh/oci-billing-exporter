@@ -34,13 +34,8 @@ class Server(private val config: Config.ServerConfig, private val client: Client
                     logger.atFine().log("Update Job: selected latest cost report: %s", latest)
 
                     // Download
-                    val download = client.downloadByName(latest.name) ?: return@withContext // fast-return when download failed
+                    val report = client.downloadCostReport(latest.name) ?: return@withContext // fast-return when download failed
                     logger.atFine().log("Update Job: downloaded cost report object")
-
-                    // Parse
-                    val parser = CsvParser()
-                    val report = parser.parse(GZIPInputStream(download.inputStream)) ?: return@withContext   // fast-return when parse failed
-                    logger.atFine().log("Update Job: parsed cost report csv")
 
                     // Write metrics
                     for (item in report.items) metrics.record(item)
@@ -67,7 +62,6 @@ class Server(private val config: Config.ServerConfig, private val client: Client
 
     override fun run() {
         httpServer = startHTTPServer()
-        updateJob.start()
     }
 
     override fun close() {
