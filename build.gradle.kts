@@ -40,6 +40,8 @@ dependencies {
     implementation("com.github.victools:jsonschema-generator:4.35.0")
     implementation("com.github.victools:jsonschema-module-jackson:4.35.0")
     testImplementation("org.jetbrains.kotlin:kotlin-test")
+    testImplementation("io.kotest:kotest-runner-junit5:5.7.2")
+    testImplementation("io.kotest:kotest-assertions-core:5.7.2")
     implementation("com.opencsv:opencsv:5.9")
 }
 
