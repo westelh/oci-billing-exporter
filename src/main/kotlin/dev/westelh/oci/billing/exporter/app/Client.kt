@@ -51,6 +51,11 @@ class Client(config: Config) {
         }
     }
 
+    suspend fun downloadLatestCostReport(): CostReport? {
+        val latest = listAllCostReport().orEmpty().latest() ?: return null
+        return downloadCostReport(latest.name)
+    }
+
     // fun downloadUsageReport()
 
     class CustomAsyncHandler<Req, Res> : AsyncHandler<Req, Res> {
@@ -64,4 +69,4 @@ class Client(config: Config) {
     }
 }
 
-
+private fun List<ObjectSummary>.latest(): ObjectSummary? = maxByOrNull { it.name }

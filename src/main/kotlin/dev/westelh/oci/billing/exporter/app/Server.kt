@@ -10,45 +10,20 @@ import kotlinx.coroutines.*
 import java.io.Closeable
 import java.net.InetAddress
 import java.net.UnknownHostException
+import java.time.Duration
 import java.util.zip.GZIPInputStream
 import kotlin.coroutines.cancellation.CancellationException
+import kotlin.time.toKotlinDuration
 
 class Server(private val config: Config.ServerConfig, private val client: Client) : Runnable, Closeable {
     private var httpServer: HTTPServer? = null
     private val metrics: Metrics = Metrics()
     private val coroutineScope: CoroutineScope = CoroutineScope(Job())
-    private val updateJob: Job = coroutineScope.launch {
-        try {
-            while (isActive) {
-                withContext(Dispatchers.IO) {
-                    // Enumerate all items
-                    val all = client.listAllCostReport().orEmpty()
-                    logger.atFine().log("Update Job: listing all cost report: got %d items", all.count())
-
-                    // Pick latest
-                    val latest = if (all.isNotEmpty()) {
-                        all.maxBy { it.name }   // pick latest by its name
-                    } else {
-                        return@withContext  // fast-return when list is empty
-                    }
-                    logger.atFine().log("Update Job: selected latest cost report: %s", latest)
-
-                    // Download
-                    val report = client.downloadCostReport(latest.name) ?: return@withContext // fast-return when download failed
-                    logger.atFine().log("Update Job: downloaded cost report object")
-
-                    // Write metrics
-                    for (item in report.items) metrics.record(item)
-                    logger.atFine().log("Update Job: wrote %d items in metrics", report.items.count())
-
-                    logger.atInfo().log("Update job finished")
-                }
-                logger.atInfo().log("Suspending update job for %d milliseconds", config.interval)
-                delay(config.interval)
+    private val updateJob: Job = coroutineScope.launch(start = CoroutineStart.LAZY) {
+        loop(Duration.ofMillis(config.interval).toKotlinDuration()) {
+            client.downloadLatestCostReport()?.let { report ->
+                report.items.forEach { metrics.record(it) }
             }
-        } catch (e: CancellationException) {
-            logger.atSevere().withCause(e).log("Serer job is canceled because cancellation is propagated from subroutine.")
-            throw e
         }
     }
 
@@ -62,6 +37,7 @@ class Server(private val config: Config.ServerConfig, private val client: Client
 
     override fun run() {
         httpServer = startHTTPServer()
+        updateJob.start()
     }
 
     override fun close() {
