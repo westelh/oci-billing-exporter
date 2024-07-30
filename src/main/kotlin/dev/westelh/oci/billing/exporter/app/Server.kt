@@ -47,21 +47,13 @@ class Server(private val config: Config.ServerConfig, private val client: Client
     }
 
     private fun startHTTPServer(): HTTPServer {
-        with(config) {
-            if (hostname.isNotBlank()) return startHttpServerOnHostname(port, hostname)
-            if (inetAddress.isNotBlank()) {
-                try {
-                    val inet = InetAddress.getByName(inetAddress)
-                    return startHttpServerOnInet(port, inet)
-                } catch (e: UnknownHostException) {
-                    logger.atSevere().withCause(e)
-                        .log("inetAddress %s is not a valid address. Server cannot bind to it.", inetAddress)
-                    throw e
-                }
-            }
+        val inet = readInetAddressFromConfig(config)
+        return with(config) {
+            // priority of inet is higher than hostname
+            if (inet != null) startHttpServerOnInet(port, inet)
 
-            logger.atWarning().log("Both inetAddress and hostname is specified. Binding server to localhost.")
-            return startHttpServerOnInet(port, InetAddress.getLocalHost())
+            // Use hostname when inet is not available
+            else startHttpServerOnHostname(port, hostname)
         }
     }
 

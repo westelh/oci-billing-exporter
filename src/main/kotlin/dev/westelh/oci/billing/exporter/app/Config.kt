@@ -121,3 +121,12 @@ fun configFromYamlFile(file: File): Config {
     val mapper = YAMLMapper().registerKotlinModule()
     return mapper.readValue(file)
 }
+
+fun readInetAddressFromConfig(config: Config.ServerConfig): InetAddress? {
+    return try {
+        InetAddress.getByName(config.inetAddress)
+    } catch (e: UnknownHostException) {
+        logger.atSevere().withCause(e).log("inetAddress %s is not a valid address.")
+        null
+    }
+}
