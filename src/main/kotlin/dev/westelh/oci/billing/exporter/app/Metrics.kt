@@ -1,5 +1,6 @@
-package dev.westelh.oci.billing.exporter.core
+package dev.westelh.oci.billing.exporter.app
 
+import dev.westelh.oci.billing.exporter.core.CostReport
 import io.prometheus.metrics.core.datapoints.GaugeDataPoint
 import io.prometheus.metrics.core.metrics.Gauge
 
