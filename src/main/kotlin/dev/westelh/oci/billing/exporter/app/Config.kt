@@ -15,7 +15,7 @@ import java.time.Duration
 private val logger: FluentLogger = FluentLogger.forEnclosingClass()
 
 class Config {
-    @JsonProperty("target")
+    @JsonProperty(value = "target", required = true)
     @JsonPropertyDescription("The ID of target tenancy which this app get metrics from.")
     val targetTenantId: String = ""
 
