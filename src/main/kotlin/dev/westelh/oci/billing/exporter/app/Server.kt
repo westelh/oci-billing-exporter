@@ -1,6 +1,7 @@
 package dev.westelh.oci.billing.exporter.app
 
 import com.google.common.flogger.FluentLogger
+import dev.westelh.oci.billing.exporter.config.Config
 import io.prometheus.metrics.exporter.httpserver.HTTPServer
 import io.prometheus.metrics.instrumentation.jvm.JvmMetrics
 import kotlinx.coroutines.*

@@ -10,6 +10,7 @@ import com.github.victools.jsonschema.generator.SchemaGenerator
 import com.github.victools.jsonschema.generator.SchemaGeneratorConfigBuilder
 import com.github.victools.jsonschema.generator.SchemaVersion
 import com.github.victools.jsonschema.module.jackson.JacksonModule
+import dev.westelh.oci.billing.exporter.config.Config
 import kotlinx.coroutines.runBlocking
 import java.util.logging.LogManager
 

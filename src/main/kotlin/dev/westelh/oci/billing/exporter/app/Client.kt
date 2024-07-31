@@ -7,6 +7,9 @@ import com.oracle.bmc.responses.AsyncHandler
 import dev.westelh.oci.billing.exporter.client.ObjectStorageFactory
 import dev.westelh.oci.billing.exporter.client.OnDemandObjectStorage
 import dev.westelh.oci.billing.exporter.client.await
+import dev.westelh.oci.billing.exporter.config.Config
+import dev.westelh.oci.billing.exporter.config.buildDownloadConfiguration
+import dev.westelh.oci.billing.exporter.config.loadAuthConfig
 import dev.westelh.oci.billing.exporter.core.CostReport
 import dev.westelh.oci.billing.exporter.core.CsvParser
 import java.util.zip.GZIPInputStream

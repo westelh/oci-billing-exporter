@@ -1,4 +1,4 @@
-package dev.westelh.oci.billing.exporter.app
+package dev.westelh.oci.billing.exporter.config
 
 import com.oracle.bmc.objectstorage.transfer.DownloadConfiguration
 

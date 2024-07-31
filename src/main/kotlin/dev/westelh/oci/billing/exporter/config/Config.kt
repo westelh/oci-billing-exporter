@@ -1,4 +1,4 @@
-package dev.westelh.oci.billing.exporter.app
+package dev.westelh.oci.billing.exporter.config
 
 import com.fasterxml.jackson.annotation.JsonClassDescription
 import com.fasterxml.jackson.annotation.JsonProperty
