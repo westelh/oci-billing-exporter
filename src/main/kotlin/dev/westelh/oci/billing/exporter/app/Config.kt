@@ -46,7 +46,7 @@ class Config {
             @JsonPropertyDescription("Maximum number of retries, not including the initial attempt.")
             val maxRetries: Int = 3
 
-            @JsonProperty(defaultValue = "4194304")
+            @JsonProperty(value="partSize", defaultValue = "4194304")
             @JsonPropertyDescription("The size in bytes of the individual parts as which the object is downloaded.")
             val partSizeInBytes: Int = 4194304
 
@@ -57,7 +57,7 @@ class Config {
             // but the download process will consume more system resources and network bandwidth.
             val parallelDownloads: Int = 5
 
-            @JsonProperty(defaultValue = "4194304")
+            @JsonProperty(value="multipartThreshold", defaultValue = "4194304")
             @JsonPropertyDescription("The threshold size in bytes at which we will start splitting the object into parts.")
             val multipartDownloadThresholdInBytes: Long = 4194304
 
