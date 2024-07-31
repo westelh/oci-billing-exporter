@@ -1,5 +1,6 @@
 package dev.westelh.oci.billing.exporter.app
 
+import com.fasterxml.jackson.annotation.JsonClassDescription
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.annotation.JsonPropertyDescription
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper
@@ -76,9 +77,10 @@ class Config {
 
     class AuthConfig {
         @JsonProperty("instancePrincipal")
-        @JsonPropertyDescription("A set of configuration for authentication by instance principals.")
+        @JsonPropertyDescription("Configurations for authentication by instance principals.")
         val instancePrincipal: InstancePrincipalConfig? = null
 
+        @JsonClassDescription("Configuration schema for authentication by instance principals.")
         class InstancePrincipalConfig {
             @JsonProperty(defaultValue = "PT10S")
             @JsonPropertyDescription("How long application can wait for completion of authentication.")
@@ -90,9 +92,10 @@ class Config {
         }
 
         @JsonProperty("resourcePrincipal")
-        @JsonPropertyDescription("A set of configuration for authentication by resource principals.")
+        @JsonPropertyDescription("Configurations for authentication by resource principals.")
         val resourcePrincipal: ResourcePrincipalConfig? = null
 
+        @JsonClassDescription("Configuration schema for authentication by resource principals.")
         class ResourcePrincipalConfig {
             @JsonProperty(defaultValue = "PT10S")
             @JsonPropertyDescription("How long application can wait for completion of authentication.")
@@ -103,9 +106,10 @@ class Config {
             val retries: Int = 3
         }
 
-        @JsonPropertyDescription("A set of configuration for authentication by config file.")
+        @JsonPropertyDescription("Configurations for authentication by config file.")
         val config: FileConfig = FileConfig()
 
+        @JsonClassDescription("Configuration schema for authentication by config files.")
         class FileConfig {
             @JsonPropertyDescription("The path to config file.")
             val path: String = ""
