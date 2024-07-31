@@ -80,9 +80,9 @@ class Config {
         val instancePrincipal: InstancePrincipalConfig? = null
 
         class InstancePrincipalConfig {
-            @JsonProperty(defaultValue = "10")
+            @JsonProperty(defaultValue = "PT10S")
             @JsonPropertyDescription("How long application can wait for completion of authentication.")
-            val timeout: Int = 10
+            val timeout: Duration = Duration.parse("PT10S")
 
             @JsonProperty(defaultValue = "3")
             @JsonPropertyDescription("How many times application tries to authenticate when it fails.")
@@ -94,9 +94,9 @@ class Config {
         val resourcePrincipal: ResourcePrincipalConfig? = null
 
         class ResourcePrincipalConfig {
-            @JsonProperty(defaultValue = "10")
+            @JsonProperty(defaultValue = "PT10S")
             @JsonPropertyDescription("How long application can wait for completion of authentication.")
-            val timeout: Int = 10
+            val timeout: Duration = Duration.parse("PT10S")
 
             @JsonProperty(defaultValue = "3")
             @JsonPropertyDescription("How many times application tries to authenticate when it fails.")

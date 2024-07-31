@@ -1,20 +1,31 @@
 package dev.westelh.oci.billing.exporter.app
 
 import com.google.common.flogger.FluentLogger
-import com.oracle.bmc.auth.*
+import com.oracle.bmc.auth.AuthenticationDetailsProvider
+import com.oracle.bmc.auth.ConfigFileAuthenticationDetailsProvider
+import com.oracle.bmc.auth.InstancePrincipalsAuthenticationDetailsProvider
+import com.oracle.bmc.auth.ResourcePrincipalAuthenticationDetailsProvider
 
 private val logger: FluentLogger = FluentLogger.forEnclosingClass()
 
 fun loadInstancePrincipalConfig(config: Config.AuthConfig.InstancePrincipalConfig): InstancePrincipalsAuthenticationDetailsProvider {
     return InstancePrincipalsAuthenticationDetailsProvider.builder()
-        .timeoutForEachRetry(config.timeout)
+        // Documentation of AbstractFederationClientAuthenticationDetailsProviderBuilder
+        // https://docs.oracle.com/en-us/iaas/tools/java/3.45.0/com/oracle/bmc/auth/AbstractFederationClientAuthenticationDetailsProviderBuilder.html#timeoutForEachRetry
+        // doesn't say anything about the unit of timeout.
+        // Though the Int type is suspicious, using toSeconds() for now.
+        .timeoutForEachRetry(config.timeout.toSeconds().toInt())
         .detectEndpointRetries(config.retries)
         .build()
 }
 
 fun loadResourcePrincipalConfig(config: Config.AuthConfig.ResourcePrincipalConfig): ResourcePrincipalAuthenticationDetailsProvider {
     return ResourcePrincipalAuthenticationDetailsProvider.builder()
-        .timeoutForEachRetry(config.timeout)
+        // Documentation of AbstractFederationClientAuthenticationDetailsProviderBuilder
+        // https://docs.oracle.com/en-us/iaas/tools/java/3.45.0/com/oracle/bmc/auth/AbstractFederationClientAuthenticationDetailsProviderBuilder.html#timeoutForEachRetry
+        // doesn't say anything about the unit of timeout.
+        // Though the Int type is suspicious, using toSeconds() for now.
+        .timeoutForEachRetry(config.timeout.toSeconds().toInt())
         .detectEndpointRetries(config.retries)
         .build()
 }
