@@ -3,6 +3,7 @@ package dev.westelh.oci.billing.exporter.app
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.annotation.JsonPropertyDescription
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.google.common.flogger.FluentLogger
@@ -34,9 +35,9 @@ class Config {
         @JsonPropertyDescription("Hostname to bind the server. Priority is lower than inetAddress.")
         val hostname: String = "localhost"
 
-        @JsonProperty(defaultValue = "21600000")
-        @JsonPropertyDescription("How long server delays after an update in milliseconds.")
-        val interval: Long = 21600000L
+        @JsonProperty(defaultValue = "PT6H")
+        @JsonPropertyDescription("How long server delays after an update. Specify in ISO-8601 format.")
+        val delay: Duration = Duration.parse("PT6H")
 
         @JsonPropertyDescription("Defines how server download cost and usage reports.")
         val download: DownloadConfig = DownloadConfig()
@@ -61,13 +62,13 @@ class Config {
             @JsonPropertyDescription("The threshold size in bytes at which we will start splitting the object into parts.")
             val multipartDownloadThresholdInBytes: Long = 4194304
 
-            @JsonProperty(defaultValue = "3")
-            @JsonPropertyDescription("Initial backoff, before a retry is performed.")
-            val initialBackoff: Duration = Duration.ofSeconds(3)
+            @JsonProperty(defaultValue = "PT3S")
+            @JsonPropertyDescription("Initial backoff, before a retry is performed. Specify in ISO-8601 format.")
+            val initialBackoff: Duration = Duration.parse("PT3S")
 
-            @JsonProperty(defaultValue = "24")
-            @JsonPropertyDescription("Maximum backoff between retries.")
-            val maxBackoff: Duration = Duration.ofHours(24)
+            @JsonProperty(defaultValue = "P1D")
+            @JsonPropertyDescription("Maximum backoff between retries. Specify in ISO-8601 format.")
+            val maxBackoff: Duration = Duration.parse("P1D")
         }
     }
 
@@ -118,7 +119,7 @@ class Config {
 }
 
 fun configFromYamlFile(file: File): Config {
-    val mapper = YAMLMapper().registerKotlinModule()
+    val mapper = YAMLMapper().registerKotlinModule().registerModules(JavaTimeModule())
     return mapper.readValue(file)
 }
 
