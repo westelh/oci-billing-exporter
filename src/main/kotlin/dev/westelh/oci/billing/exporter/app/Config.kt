@@ -28,12 +28,8 @@ class Config {
         val port: Int = 2112
 
         @JsonProperty(defaultValue = "127.0.0.1")
-        @JsonPropertyDescription("Inet address to bind the server. Priority is higher than hostname.")
-        val inetAddress: String = "127.0.0.1"
-
-        @JsonProperty(defaultValue = "localhost")
-        @JsonPropertyDescription("Hostname to bind the server. Priority is lower than inetAddress.")
-        val hostname: String = "localhost"
+        @JsonPropertyDescription("Host name or address to bind the server.")
+        val host: InetAddress = InetAddress.getByName("127.0.0.1")
 
         @JsonProperty(defaultValue = "PT6H")
         @JsonPropertyDescription("How long server delays after an update. Specify in ISO-8601 format.")
@@ -121,13 +117,4 @@ class Config {
 fun configFromYamlFile(file: File): Config {
     val mapper = YAMLMapper().registerKotlinModule().registerModules(JavaTimeModule())
     return mapper.readValue(file)
-}
-
-fun readInetAddressFromConfig(config: Config.ServerConfig): InetAddress? {
-    return try {
-        InetAddress.getByName(config.inetAddress)
-    } catch (e: UnknownHostException) {
-        logger.atSevere().withCause(e).log("inetAddress %s is not a valid address.")
-        null
-    }
 }

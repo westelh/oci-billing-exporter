@@ -41,16 +41,7 @@ class Server(private val config: Config.ServerConfig, private val client: Client
         coroutineScope.cancel("Server is closed by close()")
     }
 
-    private fun startHTTPServer(): HTTPServer {
-        val inet = readInetAddressFromConfig(config)
-        return with(config) {
-            // priority of inet is higher than hostname
-            if (inet != null) startHttpServerOnInet(port, inet)
-
-            // Use hostname when inet is not available
-            else startHttpServerOnHostname(port, hostname)
-        }
-    }
+    private fun startHTTPServer(): HTTPServer = startHttpServerOnInet(config.port, config.host)
 
     suspend fun join() = updateJob.join()
 }
