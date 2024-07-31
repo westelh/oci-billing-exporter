@@ -4,17 +4,20 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.annotation.JsonPropertyDescription
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
+import com.fasterxml.jackson.module.kotlin.kotlinModule
 import com.fasterxml.jackson.module.kotlin.readValue
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
-import com.google.common.flogger.FluentLogger
 import java.io.File
+import java.io.InputStream
 import java.net.InetAddress
-import java.net.UnknownHostException
 import java.time.Duration
 
-private val logger: FluentLogger = FluentLogger.forEnclosingClass()
-
 class Config {
+    companion object {
+        private val mapper = YAMLMapper().registerModules(kotlinModule(), JavaTimeModule())
+        fun fromYaml(file: File): Config = mapper.readValue(file)
+        fun fromYaml(inputStream: InputStream): Config = mapper.readValue(inputStream)
+    }
+
     @JsonProperty(value = "target", required = true)
     @JsonPropertyDescription("The ID of target tenancy which this app get metrics from.")
     val targetTenantId: String = ""
@@ -112,9 +115,4 @@ class Config {
             val profile: String = "DEFAULT"
         }
     }
-}
-
-fun configFromYamlFile(file: File): Config {
-    val mapper = YAMLMapper().registerKotlinModule().registerModules(JavaTimeModule())
-    return mapper.readValue(file)
 }

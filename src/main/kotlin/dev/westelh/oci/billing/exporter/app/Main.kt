@@ -43,7 +43,7 @@ class Run : CliktCommand() {
     private val configFile by option("--config").file(mustBeReadable = true, canBeDir = false).required()
 
     override fun run() {
-        val config = configFromYamlFile(configFile)
+        val config = Config.fromYaml(configFile)
         val client = Client(config)
         val server = Server(config.server, client)
         Runtime.getRuntime().addShutdownHook(Thread {
