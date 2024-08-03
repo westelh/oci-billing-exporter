@@ -1,4 +1,4 @@
-package dev.westelh.oci.billing.exporter.app
+package dev.westelh.oci.billing.exporter
 
 import com.google.common.flogger.FluentLogger
 import dev.westelh.oci.billing.exporter.config.Config

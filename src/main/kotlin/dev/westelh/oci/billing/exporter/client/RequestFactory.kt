@@ -1,4 +1,4 @@
-package dev.westelh.oci.billing.exporter.app
+package dev.westelh.oci.billing.exporter.client
 
 import com.oracle.bmc.objectstorage.requests.GetObjectRequest
 import com.oracle.bmc.objectstorage.requests.ListObjectsRequest

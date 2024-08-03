@@ -1,5 +1,6 @@
 package dev.westelh.oci.billing.exporter.app
 
+import dev.westelh.oci.billing.exporter.loop
 import io.kotest.assertions.throwables.shouldNotThrowAny
 import io.kotest.matchers.concurrent.suspension.shouldCompleteWithin
 import kotlinx.coroutines.*

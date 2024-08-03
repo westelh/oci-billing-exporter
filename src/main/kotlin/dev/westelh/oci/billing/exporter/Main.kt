@@ -1,4 +1,4 @@
-package dev.westelh.oci.billing.exporter.app
+package dev.westelh.oci.billing.exporter
 
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.subcommands
@@ -11,8 +11,10 @@ import com.github.victools.jsonschema.generator.SchemaGeneratorConfigBuilder
 import com.github.victools.jsonschema.generator.SchemaVersion
 import com.github.victools.jsonschema.module.jackson.JacksonModule
 import dev.westelh.oci.billing.exporter.config.Config
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import java.util.logging.LogManager
+import kotlin.time.Duration
 
 class Main {
     companion object {
@@ -63,5 +65,12 @@ private fun configureLogManager() {
     if (fileSpec.isNullOrBlank() && classSpec.isNullOrBlank()) {
         val bundled = Main::class.java.getResourceAsStream("/logging.properties")
         LogManager.getLogManager().readConfiguration(bundled)
+    }
+}
+
+suspend fun<R> loop(delay: Duration, job: suspend () -> R) {
+    while (true) {
+        job()
+        delay(delay)
     }
 }

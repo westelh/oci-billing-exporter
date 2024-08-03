@@ -1,7 +1,8 @@
-package dev.westelh.oci.billing.exporter.app
+package dev.westelh.oci.billing.exporter.client
 
 import com.oracle.bmc.objectstorage.requests.GetObjectRequest
 import com.oracle.bmc.objectstorage.requests.ListObjectsRequest
+import dev.westelh.oci.billing.exporter.client.RequestFactory
 
 class SimpleRequestFactory(targetTenantId: String) : RequestFactory {
     private val namespace: String = "bling"
