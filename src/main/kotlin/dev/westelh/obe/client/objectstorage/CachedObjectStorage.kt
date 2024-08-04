@@ -1,4 +1,4 @@
-package dev.westelh.obe.client
+package dev.westelh.obe.client.objectstorage
 
 import com.oracle.bmc.auth.AuthenticationDetailsProvider
 import com.oracle.bmc.objectstorage.ObjectStorage

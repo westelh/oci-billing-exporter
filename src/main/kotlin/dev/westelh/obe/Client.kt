@@ -5,6 +5,10 @@ import com.oracle.bmc.objectstorage.model.ObjectSummary
 import com.oracle.bmc.objectstorage.transfer.DownloadManager
 import com.oracle.bmc.responses.AsyncHandler
 import dev.westelh.obe.client.*
+import dev.westelh.obe.client.objectstorage.ObjectStorageFactory
+import dev.westelh.obe.client.objectstorage.OnDemandObjectStorage
+import dev.westelh.obe.client.objectstorage.RequestFactory
+import dev.westelh.obe.client.objectstorage.SimpleRequestFactory
 import dev.westelh.obe.config.Config
 import dev.westelh.obe.config.buildDownloadConfiguration
 import dev.westelh.obe.config.loadAuthConfig

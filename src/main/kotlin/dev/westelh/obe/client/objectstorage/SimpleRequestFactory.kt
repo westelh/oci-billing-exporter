@@ -1,7 +1,8 @@
-package dev.westelh.obe.client
+package dev.westelh.obe.client.objectstorage
 
 import com.oracle.bmc.objectstorage.requests.GetObjectRequest
 import com.oracle.bmc.objectstorage.requests.ListObjectsRequest
+import dev.westelh.obe.client.objectstorage.RequestFactory
 
 class SimpleRequestFactory(targetTenantId: String) : RequestFactory {
     private val namespace: String = "bling"

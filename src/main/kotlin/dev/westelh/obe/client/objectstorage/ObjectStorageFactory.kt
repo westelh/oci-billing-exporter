@@ -1,4 +1,4 @@
-package dev.westelh.obe.client
+package dev.westelh.obe.client.objectstorage
 
 import com.oracle.bmc.objectstorage.ObjectStorage
 import com.oracle.bmc.objectstorage.ObjectStorageAsync
