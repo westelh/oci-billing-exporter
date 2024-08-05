@@ -1,6 +1,7 @@
 package dev.westelh.obe
 
 import com.github.ajalt.clikt.core.CliktCommand
+import com.github.ajalt.clikt.parameters.options.convert
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.file
@@ -23,6 +24,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import java.util.zip.GZIPInputStream
 import kotlin.time.Duration
+import kotlin.time.DurationUnit
 import kotlin.time.toKotlinDuration
 
 class Run : CliktCommand() {
@@ -30,7 +32,6 @@ class Run : CliktCommand() {
     private val metrics = Metrics()
 
     init {
-        logger.atFine().log("Server is starting...")
         JvmMetrics.builder().register()
     }
 
@@ -49,25 +50,36 @@ class Run : CliktCommand() {
         runBlocking {
             val requestFactory = SimpleRequestFactory(config.targetTenantId)
 
-            logger.atFine().log("Starting main loop.")
+            logger.atInfo().log("Starting main loop.")
             loop(config.server.delay.toKotlinDuration()) {
                 try {
+
+                    logger.atFine().log("Getting the list of objects in the designated object storage bucket.")
                     val all = listAllObjects(osAsync, requestFactory.buildListCostReportsRequest())
+
                     if (all.isNotEmpty()) {
                         val latest = all.maxBy { it.name }.name
+
+                        logger.atFine().log("Downloading the latest cost report.")
                         val getRes = dlManager.suspendGetObject(
                             GetObjectRequest.builder().billingNamespace().billingBucketName(config.targetTenantId)
                                 .objectName(latest).build()
                         )
+
+                        logger.atFine().log("Parsing object content as cost report.")
                         val report = CsvParser().parse(GZIPInputStream(getRes.inputStream))
+
+                        logger.atFine().log("Writing metrics for each items in the cost report.")
                         report.items.forEach { metrics.record(it) }
+
+                        logger.atInfo().log("Downloaded the latest cost report, created at %s, with %d items.", 0, report.items.count())
                     }
                 } catch (ce: CancellationException) {
                     throw ce
                 } catch (e: Exception) {
                     logger.atWarning().withCause(e).log("Updating metrics is cancelled because: %s", e.message)
                 }
-                logger.atInfo().log("Update is finished. Sleeping for %s.", config.server.delay)
+                logger.atInfo().log("Update is finished. Sleeping for %s.", config.server.delay.toKotlinDuration().toString(DurationUnit.SECONDS))
             }
         }
     }
