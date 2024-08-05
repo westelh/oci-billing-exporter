@@ -40,11 +40,8 @@ class Run : CliktCommand() {
     }
 
     override fun run() {
-        val config = Config.fromYaml(configFile)
-        val adp = loadAuthConfig(config.auth).getOrThrow()
-        val factory = CachedObjectStorage(adp)
-        val os = factory.getObjectStorage()
-        val osAsync = factory.getObjectStorageAsync()
+        val os = ObjectStorageClient.builder().build(adp)
+        val osAsync = ObjectStorageAsyncClient.builder().build(adp)
         val dlManager = DownloadManager(os, buildDownloadConfiguration(config.server.download))
 
         runBlocking {
