@@ -1,18 +1,13 @@
 package dev.westelh.obe.client.objectstorage
 
-import com.oracle.bmc.objectstorage.ObjectStorage
 import com.oracle.bmc.objectstorage.ObjectStorageAsync
-import com.oracle.bmc.objectstorage.ObjectStoragePaginators
 import com.oracle.bmc.objectstorage.model.ObjectSummary
 import com.oracle.bmc.objectstorage.requests.GetObjectRequest
 import com.oracle.bmc.objectstorage.requests.ListObjectsRequest
 import com.oracle.bmc.objectstorage.responses.GetObjectResponse
 import com.oracle.bmc.objectstorage.responses.ListObjectsResponse
-import com.oracle.bmc.objectstorage.transfer.DownloadConfiguration
 import com.oracle.bmc.objectstorage.transfer.DownloadManager
 import dev.westelh.obe.client.await
-import kotlinx.coroutines.suspendCancellableCoroutine
-import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
