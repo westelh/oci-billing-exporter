@@ -11,7 +11,7 @@ plugins {
 }
 
 group = "westelh"
-version = "1.0.1"
+version = "1.0.0"
 
 repositories {
     mavenCentral()
@@ -59,7 +59,6 @@ application {
 }
 
 docker {
-    url = "unix:///Users/taisei/.colima/default/docker.sock"
     javaApplication {
         baseImage = "amazoncorretto:21"
     }
