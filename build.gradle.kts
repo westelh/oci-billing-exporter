@@ -55,7 +55,7 @@ kotlin {
 }
 
 application {
-    mainClass.set("dev.westelh.oci.billing.exporter.app.Main")
+    mainClass.set("dev.westelh.obe.Main")
 }
 
 docker {
