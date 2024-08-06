@@ -22,6 +22,11 @@ dependencies {
     implementation("com.oracle.oci.sdk:oci-java-sdk-common-httpclient-jersey3")
     implementation("com.oracle.oci.sdk:oci-java-sdk-core")
     implementation("com.oracle.oci.sdk:oci-java-sdk-objectstorage")
+    constraints {
+        implementation("commons-codec:commons-codec:1.13") {
+            because("commons-codec pulled with oci-java-sdk-common-httpclient-jersey3:3.45.0 has a known vulnerability: Cxeb68d52e-5509")
+        }
+    }
 
     implementation("io.prometheus:prometheus-metrics-core:1.1.0")
     implementation("io.prometheus:prometheus-metrics-instrumentation-jvm:1.1.0")
