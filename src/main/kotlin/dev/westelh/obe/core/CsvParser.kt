@@ -1,7 +1,6 @@
 package dev.westelh.obe.core
 
 import com.opencsv.bean.CsvToBeanBuilder
-import com.opencsv.exceptions.CsvException
 import java.io.InputStream
 import java.io.InputStreamReader
 
