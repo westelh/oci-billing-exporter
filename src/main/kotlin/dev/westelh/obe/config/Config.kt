@@ -26,6 +26,7 @@ class Config {
     @JsonPropertyDescription("server defines how to run server.")
     val server: ServerConfig = ServerConfig()
 
+    // TODO: Add @JsonClassDescription annotation.
     class ServerConfig {
         @JsonProperty(defaultValue = "2112")
         @JsonPropertyDescription("Server port")
@@ -42,6 +43,7 @@ class Config {
         @JsonPropertyDescription("Defines how server download cost and usage reports.")
         val download: DownloadConfig = DownloadConfig()
 
+        // TODO: Add @JsonClassDescription annotation.
         class DownloadConfig {
             @JsonProperty(defaultValue = "3")
             @JsonPropertyDescription("Maximum number of retries, not including the initial attempt.")
@@ -75,6 +77,7 @@ class Config {
     @JsonPropertyDescription("The authentication method for OCI api calls.")
     val auth: AuthConfig = AuthConfig()
 
+    // TODO: Add @JsonClassDescription annotation.
     class AuthConfig {
         @JsonProperty("instancePrincipal")
         @JsonPropertyDescription("Configurations for authentication by instance principals.")
