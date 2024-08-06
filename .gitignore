@@ -42,3 +42,6 @@ bin/
 
 ### Mac OS ###
 .DS_Store
+
+# Ignore config.yaml, because it has sensitive information
+config.yaml
