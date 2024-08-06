@@ -50,6 +50,9 @@ dependencies {
     implementation("com.github.victools:jsonschema-generator:4.35.0")
     implementation("com.github.victools:jsonschema-module-jackson:4.36.0")
 
+    // Opencsv:5.9 pulls a vulnerable module, commons-collections:3.2.2
+    // The problem is that commons-beanutils version 1 is strongly tied with commons-collections 3.x
+    // And dev team of commons-beanutils seems inactive: https://issues.apache.org/jira/browse/BEANUTILS-532
     implementation("com.opencsv:opencsv:5.9")
 
     testImplementation("org.jetbrains.kotlin:kotlin-test")
