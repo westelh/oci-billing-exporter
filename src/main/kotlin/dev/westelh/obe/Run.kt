@@ -11,15 +11,18 @@ import com.oracle.bmc.objectstorage.ObjectStorage
 import com.oracle.bmc.objectstorage.ObjectStorageAsync
 import com.oracle.bmc.objectstorage.ObjectStorageAsyncClient
 import com.oracle.bmc.objectstorage.ObjectStorageClient
+import com.oracle.bmc.objectstorage.model.ObjectSummary
 import com.oracle.bmc.objectstorage.requests.GetObjectRequest
 import com.oracle.bmc.objectstorage.requests.ListObjectsRequest
 import com.oracle.bmc.objectstorage.transfer.DownloadManager
 import dev.westelh.obe.client.billingBucketName
 import dev.westelh.obe.client.billingNamespace
 import dev.westelh.obe.client.billingPrefixForCostReport
-import dev.westelh.obe.client.objectstorage.listAllObjects
 import dev.westelh.obe.client.objectstorage.suspendGetObject
-import dev.westelh.obe.config.*
+import dev.westelh.obe.client.objectstorage.suspendListObjects
+import dev.westelh.obe.config.Config
+import dev.westelh.obe.config.anythingAvailable
+import dev.westelh.obe.config.buildDownloadConfiguration
 import dev.westelh.obe.core.CsvParser
 import io.prometheus.metrics.instrumentation.jvm.JvmMetrics
 import kotlinx.coroutines.CancellationException
@@ -58,8 +61,8 @@ class Run : CliktCommand() {
                     val objectStorageAsync = buildObjectStorageAsync(auth)
                     val downloadManager = buildDownloadManager(objectStorage)
 
-                    logger.atFine().log("Getting the list of objects in the designated object storage bucket.")
-                    val all = listAllObjects(objectStorageAsync, buildRequestListObjectOfCostReport())
+                    val all = listAllCostReport(objectStorageAsync)
+                    logger.atInfo().log("Retrieved a summary of %d cost reports.", all.count())
 
                     if (all.isNotEmpty()) {
                         val latest = all.maxBy { it.name }.name
@@ -68,7 +71,7 @@ class Run : CliktCommand() {
                         val getRes = downloadManager.suspendGetObject(buildRequestGetObjectOfCostReport(latest))
 
                         logger.atFine().log("Parsing object content as cost report.")
-                        val report = CsvParser().parse(GZIPInputStream(getRes.inputStream))
+                        val report = getRes.inputStream.use { CsvParser().parse(GZIPInputStream(it)) }
 
                         logger.atFine().log("Writing metrics for each items in the cost report.")
                         report.items.forEach { metrics.record(it) }
@@ -95,10 +98,11 @@ class Run : CliktCommand() {
     private fun buildDownloadManager(objectStorage: ObjectStorage): DownloadManager =
         DownloadManager(objectStorage, buildDownloadConfiguration(config.server.download))
 
-    private fun buildRequestListObjectOfCostReport(): ListObjectsRequest = ListObjectsRequest.builder()
+    private fun buildRequestListObjectOfCostReport(start: String = ""): ListObjectsRequest = ListObjectsRequest.builder()
         .billingNamespace()
         .billingBucketName(config.targetTenantId)
         .billingPrefixForCostReport()
+        .start(start)
         .build()
 
     private fun buildRequestGetObjectOfCostReport(name: String): GetObjectRequest = GetObjectRequest.builder()
@@ -106,6 +110,26 @@ class Run : CliktCommand() {
         .billingBucketName(config.targetTenantId)
         .objectName(name)
         .build()
+
+    private suspend fun listAllCostReport(objectStorageAsync: ObjectStorageAsync): List<ObjectSummary> {
+        logger.atFine().log("Started getting the list of objects in the designated object storage bucket.")
+
+        val sum = mutableListOf<ObjectSummary>()
+        var nextStartWith = ""
+
+        do {
+            logger.atFiner().log("Preparing a request for a list of objects that start with %s", nextStartWith)
+            val nextRequest = buildRequestListObjectOfCostReport(nextStartWith)
+
+            logger.atFiner().log("Suspend the coroutine until the request completes: %s", nextRequest)
+            val res = objectStorageAsync.suspendListObjects(nextRequest)
+
+            sum.addAll(res.listObjects.objects)
+            nextStartWith = res.listObjects.nextStartWith ?: ""
+        } while (nextStartWith.isNotBlank())
+
+        return sum
+    }
 }
 
 suspend fun <R> loop(delay: Duration, job: suspend () -> R) {
