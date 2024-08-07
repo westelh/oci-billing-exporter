@@ -49,8 +49,7 @@ jobs:
       with:
         version: "lab:latest"
         driver: cloud
-        endpoint: "ORG/default"
-        install: true
+        endpoint: "westelh/ci-cd"
 
     - name: Get version from gradle
       id: version
