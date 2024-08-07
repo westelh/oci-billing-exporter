@@ -23,7 +23,7 @@ import dev.westelh.obe.client.objectstorage.suspendListObjects
 import dev.westelh.obe.config.Config
 import dev.westelh.obe.config.anythingAvailable
 import dev.westelh.obe.config.buildDownloadConfiguration
-import dev.westelh.obe.core.CsvParser
+import dev.westelh.obe.core.JacksonCsvParser
 import io.prometheus.metrics.instrumentation.jvm.JvmMetrics
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
@@ -71,7 +71,7 @@ class Run : CliktCommand() {
                         val getRes = downloadManager.suspendGetObject(buildRequestGetObjectOfCostReport(latest))
 
                         logger.atFine().log("Parsing object content as cost report.")
-                        val report = getRes.inputStream.use { CsvParser().parse(GZIPInputStream(it)) }
+                        val report = getRes.inputStream.use { JacksonCsvParser().parse(GZIPInputStream(it)) }
 
                         logger.atFine().log("Writing metrics for each items in the cost report.")
                         report.items.forEach { metrics.record(it) }
