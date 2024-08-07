@@ -1,95 +1,133 @@
 package dev.westelh.obe.core
 
-import com.opencsv.bean.CsvBindByName
+import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.annotation.JsonPropertyOrder
+import com.fasterxml.jackson.dataformat.csv.CsvMapper
 
 data class CostReport(val items: List<Item>) {
+
+    @JsonPropertyOrder(
+        "lineItem/referenceNo",
+        "lineItem/tenantId",
+        "lineItem/intervalUsageStart",
+        "lineItem/intervalUsageEnd",
+        "product/service",
+        "product/compartmentId",
+        "product/compartmentName",
+        "product/region",
+        "product/availabilityDomain",
+        "product/resourceId",
+        "usage/billedQuantity",
+        "usage/billedQuantityOverage",
+        "cost/subscriptionId",
+        "cost/productSku",
+        "product/Description",
+        "cost/unitPrice",
+        "cost/unitPriceOverage",
+        "cost/myCost",
+        "cost/myCostOverage",
+        "cost/currencyCode",
+        "cost/billingUnitReadable",
+        "cost/skuUnitDescription",
+        "cost/overageFlag",
+        "lineItem/isCorrection",
+        "lineItem/backreferenceNo",
+        "tags/OKEclusterName",
+        "tags/Oracle-Tags.CreatedBy",
+        "tags/Oracle-Tags.CreatedOn",
+        "tags/orcl-cloud.free-tier-retained"
+    )
     class Item {
-        @CsvBindByName(column = "lineItem/referenceNo")
+        @JsonProperty("lineItem/referenceNo")
         var referenceNo: String = ""
 
-        @CsvBindByName(column = "lineItem/tenantId")
+        @JsonProperty("lineItem/tenantId")
         var tenantId: String = ""
 
-        @CsvBindByName(column = "lineItem/intervalUsageStart")
+        @JsonProperty("lineItem/intervalUsageStart")
         var intervalUsageStart: String = ""
 
-        @CsvBindByName(column = "lineItem/intervalUsageEnd")
+        @JsonProperty("lineItem/intervalUsageEnd")
         var intervalUsageEnd: String = ""
 
-        @CsvBindByName(column = "product/service")
+        @JsonProperty("product/service")
         var service: String = ""
 
-        @CsvBindByName(column = "product/compartmentId")
+        @JsonProperty("product/compartmentId")
         var compartmentId: String = ""
 
-        @CsvBindByName(column = "product/compartmentName")
+        @JsonProperty("product/compartmentName")
         var compartmentName: String = ""
 
-        @CsvBindByName(column = "product/region")
+        @JsonProperty("product/region")
         var region: String = ""
 
-        @CsvBindByName(column = "product/availabilityDomain")
+        @JsonProperty("product/availabilityDomain")
         var availabilityDomain: String = ""
 
-        @CsvBindByName(column = "product/resourceId")
+        @JsonProperty("product/resourceId")
         var resourceId: String = ""
 
-        @CsvBindByName(column = "usage/billedQuantity")
+        @JsonProperty("usage/billedQuantity")
         var billedQuantity: Double = 0.0
 
-        @CsvBindByName(column = "usage/billedQuantityOverage")
+        @JsonProperty("usage/billedQuantityOverage")
         var billedQuantityOverage: String = ""
 
-        @CsvBindByName(column = "cost/subscriptionId")
+        @JsonProperty("cost/subscriptionId")
         var subscriptionId: String = ""
 
-        @CsvBindByName(column = "cost/productSku")
+        @JsonProperty("cost/productSku")
         var productSku: String = ""
 
-        @CsvBindByName(column = "product/Description")
+        @JsonProperty("product/Description")
         var description: String = ""
 
-        @CsvBindByName(column = "cost/unitPrice")
+        @JsonProperty("cost/unitPrice")
         var unitPrice: Double = 0.0
 
-        @CsvBindByName(column = "cost/unitPriceOverage")
+        @JsonProperty("cost/unitPriceOverage")
         var unitPriceOverage: String = ""
 
-        @CsvBindByName(column = "cost/myCost")
+        @JsonProperty("cost/myCost")
         var myCost: Double = 0.0
 
-        @CsvBindByName(column = "cost/myCostOverage")
+        @JsonProperty("cost/myCostOverage")
         var myCostOverage: String = ""
 
-        @CsvBindByName(column = "cost/currencyCode")
+        @JsonProperty("cost/currencyCode")
         var currencyCode: String = ""
 
-        @CsvBindByName(column = "cost/billingUnitReadable")
+        @JsonProperty("cost/billingUnitReadable")
         var billingUnitReadable: String = ""
 
-        @CsvBindByName(column = "cost/skuUnitDescription")
+        @JsonProperty("cost/skuUnitDescription")
         var skuUnitDescription: String = ""
 
-        @CsvBindByName(column = "cost/overageFlag")
+        @JsonProperty("cost/overageFlag")
         var overageFlag: String = ""
 
-        @CsvBindByName(column = "lineItem/isCorrection")
+        @JsonProperty("lineItem/isCorrection")
         var isCorrection: String = ""
 
-        @CsvBindByName(column = "lineItem/backreferenceNo")
+        @JsonProperty("lineItem/backreferenceNo")
         var backreferenceNo: String = ""
 
-        @CsvBindByName(column = "tags/OKEclusterName")
+        @JsonProperty("tags/OKEclusterName")
         var OKEclusterName: String = ""
 
-        @CsvBindByName(column = "tags/Oracle-Tags.CreatedBy")
+        @JsonProperty("tags/Oracle-Tags.CreatedBy")
         var createdBy: String = ""
 
-        @CsvBindByName(column = "tags/Oracle-Tags.CreatedOn")
+        @JsonProperty("tags/Oracle-Tags.CreatedOn")
         var createdOn: String = ""
 
-        @CsvBindByName(column = "tags/orcl-cloud.free-tier-retained")
+        @JsonProperty("tags/orcl-cloud.free-tier-retained")
         var freeTierRetained: String = ""
+
+        companion object {
+            val schema = CsvMapper().schemaFor(Item::class.java).withHeader()
+        }
     }
 }
 
