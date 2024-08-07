@@ -1,4 +1,4 @@
-package dev.westelh.obe.app
+package dev.westelh.obe
 
 import dev.westelh.obe.loop
 import io.kotest.assertions.throwables.shouldNotThrowAny
