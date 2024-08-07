@@ -3,6 +3,7 @@ package dev.westelh.obe.core
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.annotation.JsonPropertyOrder
 import com.fasterxml.jackson.dataformat.csv.CsvMapper
+import com.fasterxml.jackson.dataformat.csv.CsvSchema
 
 data class CostReport(val items: List<Item>) {
 
@@ -126,7 +127,7 @@ data class CostReport(val items: List<Item>) {
         var freeTierRetained: String = ""
 
         companion object {
-            val schema = CsvMapper().schemaFor(Item::class.java).withHeader()
+            val schema: CsvSchema = CsvMapper().schemaFor(Item::class.java).withHeader()
         }
     }
 }
