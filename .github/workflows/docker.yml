@@ -61,6 +61,7 @@ jobs:
         tags: "westelh/oci-billing-exporter:${{ steps.version.outputs.version }}"
         context: build/docker
         push: true
+        platforms: linux/amd64,linux/arm64
         # For pull requests, export results to the build cache.
         # Otherwise, push to a registry.
         outputs: ${{ github.event_name == 'pull_request' && 'type=cacheonly' || 'type=registry' }}
