@@ -86,6 +86,7 @@ jobs:
 
   publish-amd64:
 
+    needs: build
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -110,6 +111,7 @@ jobs:
 
   publish-arm64:
 
+    needs: build
     runs-on: ubuntu-latest
     permissions:
       contents: read
