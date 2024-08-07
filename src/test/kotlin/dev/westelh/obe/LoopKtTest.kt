@@ -1,9 +1,11 @@
 package dev.westelh.obe
 
-import dev.westelh.obe.loop
 import io.kotest.assertions.throwables.shouldNotThrowAny
 import io.kotest.matchers.concurrent.suspension.shouldCompleteWithin
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import java.util.concurrent.TimeUnit
 import kotlin.test.Test
 import kotlin.time.Duration
