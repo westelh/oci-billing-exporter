@@ -20,9 +20,7 @@ import dev.westelh.obe.client.billingNamespace
 import dev.westelh.obe.client.billingPrefixForCostReport
 import dev.westelh.obe.client.objectstorage.suspendGetObject
 import dev.westelh.obe.client.objectstorage.suspendListObjects
-import dev.westelh.obe.config.Config
-import dev.westelh.obe.config.anythingAvailable
-import dev.westelh.obe.config.buildDownloadConfiguration
+import dev.westelh.obe.config.*
 import dev.westelh.obe.core.JacksonCsvParser
 import io.prometheus.metrics.instrumentation.jvm.JvmMetrics
 import kotlinx.coroutines.CancellationException
@@ -88,8 +86,24 @@ class Run : CliktCommand() {
         }
     }
 
-    private fun getAuthentication(): AuthenticationDetailsProvider =
-        config.auth.anythingAvailable() ?: throw RuntimeException("All of the auth methods provided was unavailable.")
+    private fun getAuthentication(): AuthenticationDetailsProvider {
+        return with(config.auth) {
+            runCatching {
+                loadFileConfig(config)
+            }.recoverCatching {
+                loadInstancePrincipalConfig(
+                    instancePrincipal ?: Config.AuthConfig.InstancePrincipalConfig()
+                ) as AuthenticationDetailsProvider
+            }.recoverCatching {
+                loadResourcePrincipalConfig(
+                    resourcePrincipal ?: Config.AuthConfig.ResourcePrincipalConfig()
+                ) as AuthenticationDetailsProvider
+            }.getOrElse {
+                logger.atSevere().withCause(it).log("All of authentication method failed with exception")
+                throw it
+            }
+        }
+    }
 
     private fun buildObjectStorage(adp: AuthenticationDetailsProvider): ObjectStorage = ObjectStorageClient.builder().build(adp)
 
