@@ -163,7 +163,7 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
-          tags: "westelh/oci-billing-exporter-arm:${{ needs.build.outputs.version }}"
+          tags: "ghcr.io/westelh/oci-billing-exporter-arm:${{ needs.build.outputs.version }}"
           context: build/docker
           platforms: linux/amd64
           # For pull requests, export results to the build cache.
@@ -197,7 +197,7 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
-          tags: "westelh/oci-billing-exporter-arm:${{ needs.build.outputs.version }}"
+          tags: "ghcr.io/westelh/oci-billing-exporter-arm:${{ needs.build.outputs.version }}"
           context: build/docker
           platforms: linux/arm64
           # For pull requests, export results to the build cache.
