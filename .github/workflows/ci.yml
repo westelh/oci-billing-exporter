@@ -84,15 +84,47 @@ jobs:
     - name: Generate and submit dependency graph
       uses: gradle/actions/dependency-submission@dbbdc275be76ac10734476cc723d82dfe7ec6eda # v3.4.2
 
-  publish-amd64:
+  publish:
 
     needs: build
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      packages: write
 
     steps:
       - uses: actions/download-artifact@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          platforms: linux/amd64,linux/arm64
+
+      # GitHub Packages
+      - name: Log in to the Container registry
+        if: ${{ github.event_name != 'pull_request' }}
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          tags: "ghcr.io/westelh/oci-billing-exporter:${{ needs.build.outputs.version }}"
+          context: build/docker
+          builder: ${{ steps.buildx.outputs.name }}
+          platforms: ${{ steps.buildx.outputs.platforms }}
+          # For pull requests, export results to the build cache.
+          # Otherwise, push to a registry.
+          outputs: ${{ github.event_name == 'pull_request' && 'type=cacheonly' || 'type=registry' }}
+
+      # Docker Hub
       - name: Log in to Docker Hub
         if: ${{ github.event_name != 'pull_request' }}
         uses: docker/login-action@v3
@@ -104,75 +136,6 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           tags: "westelh/oci-billing-exporter:${{ needs.build.outputs.version }}"
-          context: build/docker
-          platforms: linux/amd64
-          # For pull requests, export results to the build cache.
-          # Otherwise, push to a registry.
-          outputs: ${{ github.event_name == 'pull_request' && 'type=cacheonly' || 'type=registry' }}
-
-  publish-arm64:
-
-    needs: build
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-
-    steps:
-    - uses: actions/download-artifact@v4
-    - name: Log in to Docker Hub
-      if: ${{ github.event_name != 'pull_request' }}
-      uses: docker/login-action@v3
-      with:
-        username: ${{ secrets.DOCKERHUB_USERNAME }}
-        password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
-      with:
-        version: "lab:latest"
-        driver: cloud
-        endpoint: "westelh/ci-cd"
-
-    - name: Build and push
-      uses: docker/build-push-action@v6
-      with:
-        tags: "westelh/oci-billing-exporter-arm:${{ needs.build.outputs.version }}"
-        context: build/docker
-        platforms: linux/arm64
-        # For pull requests, export results to the build cache.
-        # Otherwise, push to a registry.
-        outputs: ${{ github.event_name == 'pull_request' && 'type=cacheonly' || 'type=registry' }}
-
-  publish-ghcr:
-
-    needs: build
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-
-    steps:
-      - uses: actions/download-artifact@v4
-      - name: Log in to the Container registry
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-
-      - name: Set up Docker Buildx
-        id: buildx
-        uses: docker/setup-buildx-action@v3
-        with:
-          platforms: linux/amd64,linux/arm64
-
-      - name: Build and push
-        uses: docker/build-push-action@v6
-        with:
-          tags: "ghcr.io/westelh/oci-billing-exporter:${{ needs.build.outputs.version }}"
           context: build/docker
           builder: ${{ steps.buildx.outputs.name }}
           platforms: ${{ steps.buildx.outputs.platforms }}
