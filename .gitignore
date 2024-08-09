@@ -45,4 +45,4 @@ bin/
 .DS_Store
 
 # Ignore config.yaml, because it has sensitive information
-./config.yaml
+/config.yaml
