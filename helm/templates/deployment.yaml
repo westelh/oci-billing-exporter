@@ -36,7 +36,7 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          entrypoint: ["java", "-cp", "/app/resources:/app/classes:/app/libs/*", "-Djava.util.logging.config.file=/etc/oci-billing-exporter/logging.properties", "dev.westelh.obe.Main"]
+          command: ["java", "-cp", "/app/resources:/app/classes:/app/libs/*", "-Djava.util.logging.config.file=/etc/oci-billing-exporter/logging.properties", "dev.westelh.obe.Main"]
           args:
             - run
             - --config=/etc/oci-billing-exporter/config.yaml
