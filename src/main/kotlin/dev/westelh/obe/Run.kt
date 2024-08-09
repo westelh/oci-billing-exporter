@@ -6,7 +6,7 @@ import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.file
 import com.google.common.flogger.FluentLogger
-import com.oracle.bmc.auth.AuthenticationDetailsProvider
+import com.oracle.bmc.auth.AbstractAuthenticationDetailsProvider
 import com.oracle.bmc.objectstorage.ObjectStorage
 import com.oracle.bmc.objectstorage.ObjectStorageAsync
 import com.oracle.bmc.objectstorage.ObjectStorageAsyncClient
@@ -86,7 +86,7 @@ class Run : CliktCommand() {
         }
     }
 
-    private fun getAuthentication(): AuthenticationDetailsProvider {
+    private fun getAuthentication(): AbstractAuthenticationDetailsProvider {
         return with(config.auth) {
             runCatching {
                 loadFileConfig(config)
@@ -95,13 +95,13 @@ class Run : CliktCommand() {
                 logger.atFine().log("Recovering authentication by instance principals.")
                 loadInstancePrincipalConfig(
                     instancePrincipal ?: Config.AuthConfig.InstancePrincipalConfig()
-                ) as AuthenticationDetailsProvider
+                )
             }.recoverCatching {
                 logger.atFiner().withCause(it).log("Instance principal is not available.")
                 logger.atFine().log("Recovering authentication by resource principals.")
                 loadResourcePrincipalConfig(
                     resourcePrincipal ?: Config.AuthConfig.ResourcePrincipalConfig()
-                ) as AuthenticationDetailsProvider
+                )
             }.getOrElse {
                 logger.atFiner().withCause(it).log("Resource principal is not available.")
                 throw RuntimeException("All of authentication method failed.")
@@ -109,9 +109,9 @@ class Run : CliktCommand() {
         }
     }
 
-    private fun buildObjectStorage(adp: AuthenticationDetailsProvider): ObjectStorage = ObjectStorageClient.builder().build(adp)
+    private fun buildObjectStorage(adp: AbstractAuthenticationDetailsProvider): ObjectStorage = ObjectStorageClient.builder().build(adp)
 
-    private fun buildObjectStorageAsync(adp: AuthenticationDetailsProvider): ObjectStorageAsync = ObjectStorageAsyncClient.builder().build(adp)
+    private fun buildObjectStorageAsync(adp: AbstractAuthenticationDetailsProvider): ObjectStorageAsync = ObjectStorageAsyncClient.builder().build(adp)
 
     private fun buildDownloadManager(objectStorage: ObjectStorage): DownloadManager =
         DownloadManager(objectStorage, buildDownloadConfiguration(config.server.download))
