@@ -91,16 +91,20 @@ class Run : CliktCommand() {
             runCatching {
                 loadFileConfig(config)
             }.recoverCatching {
+                logger.atFiner().withCause(it).log("File config is invalid.")
+                logger.atFine().log("Recovering authentication by instance principals.")
                 loadInstancePrincipalConfig(
                     instancePrincipal ?: Config.AuthConfig.InstancePrincipalConfig()
                 ) as AuthenticationDetailsProvider
             }.recoverCatching {
+                logger.atFiner().withCause(it).log("Instance principal is not available.")
+                logger.atFine().log("Recovering authentication by resource principals.")
                 loadResourcePrincipalConfig(
                     resourcePrincipal ?: Config.AuthConfig.ResourcePrincipalConfig()
                 ) as AuthenticationDetailsProvider
             }.getOrElse {
-                logger.atSevere().withCause(it).log("All of authentication method failed with exception")
-                throw it
+                logger.atFiner().withCause(it).log("Resource principal is not available.")
+                throw RuntimeException("All of authentication method failed.")
             }
         }
     }
