@@ -6,7 +6,7 @@ import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.file
 import com.google.common.flogger.FluentLogger
-import com.oracle.bmc.auth.AuthenticationDetailsProvider
+import com.oracle.bmc.auth.AbstractAuthenticationDetailsProvider
 import com.oracle.bmc.objectstorage.ObjectStorage
 import com.oracle.bmc.objectstorage.ObjectStorageAsync
 import com.oracle.bmc.objectstorage.ObjectStorageAsyncClient
@@ -20,9 +20,7 @@ import dev.westelh.obe.client.billingNamespace
 import dev.westelh.obe.client.billingPrefixForCostReport
 import dev.westelh.obe.client.objectstorage.suspendGetObject
 import dev.westelh.obe.client.objectstorage.suspendListObjects
-import dev.westelh.obe.config.Config
-import dev.westelh.obe.config.anythingAvailable
-import dev.westelh.obe.config.buildDownloadConfiguration
+import dev.westelh.obe.config.*
 import dev.westelh.obe.core.JacksonCsvParser
 import io.prometheus.metrics.instrumentation.jvm.JvmMetrics
 import kotlinx.coroutines.CancellationException
@@ -88,12 +86,32 @@ class Run : CliktCommand() {
         }
     }
 
-    private fun getAuthentication(): AuthenticationDetailsProvider =
-        config.auth.anythingAvailable() ?: throw RuntimeException("All of the auth methods provided was unavailable.")
+    private fun getAuthentication(): AbstractAuthenticationDetailsProvider {
+        return with(config.auth) {
+            runCatching {
+                loadFileConfig(config)
+            }.recoverCatching {
+                logger.atFiner().withCause(it).log("File config is invalid.")
+                logger.atFine().log("Recovering authentication by instance principals.")
+                loadInstancePrincipalConfig(
+                    instancePrincipal ?: Config.AuthConfig.InstancePrincipalConfig()
+                )
+            }.recoverCatching {
+                logger.atFiner().withCause(it).log("Instance principal is not available.")
+                logger.atFine().log("Recovering authentication by resource principals.")
+                loadResourcePrincipalConfig(
+                    resourcePrincipal ?: Config.AuthConfig.ResourcePrincipalConfig()
+                )
+            }.getOrElse {
+                logger.atFiner().withCause(it).log("Resource principal is not available.")
+                throw RuntimeException("All of authentication method failed.")
+            }
+        }
+    }
 
-    private fun buildObjectStorage(adp: AuthenticationDetailsProvider): ObjectStorage = ObjectStorageClient.builder().build(adp)
+    private fun buildObjectStorage(adp: AbstractAuthenticationDetailsProvider): ObjectStorage = ObjectStorageClient.builder().build(adp)
 
-    private fun buildObjectStorageAsync(adp: AuthenticationDetailsProvider): ObjectStorageAsync = ObjectStorageAsyncClient.builder().build(adp)
+    private fun buildObjectStorageAsync(adp: AbstractAuthenticationDetailsProvider): ObjectStorageAsync = ObjectStorageAsyncClient.builder().build(adp)
 
     private fun buildDownloadManager(objectStorage: ObjectStorage): DownloadManager =
         DownloadManager(objectStorage, buildDownloadConfiguration(config.server.download))
