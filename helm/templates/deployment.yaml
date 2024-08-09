@@ -36,6 +36,10 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          entrypoint: ["java", "-cp", "/app/resources:/app/classes:/app/libs/*", "-Djava.util.logging.config.file=/etc/oci-billing-exporter/logging.properties", "dev.westelh.obe.Main"]
+          args:
+            - run
+            - --config=/etc/oci-billing-exporter/config.yaml
           ports:
             - name: http
               containerPort: {{ .Values.service.port }}
@@ -46,14 +50,25 @@ spec:
             {{- toYaml .Values.readinessProbe | nindent 12 }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
-          {{- with .Values.volumeMounts }}
+          
           volumeMounts:
+            {{- with .Values.volumeMounts }}
             {{- toYaml . | nindent 12 }}
-          {{- end }}
-      {{- with .Values.volumes }}
+            {{- end }}
+
+            - name: config
+              mountPath: /etc/oci-billing-exporter
+              readOnly: true
+      
       volumes:
+        {{- with .Values.volumes }}
         {{- toYaml . | nindent 8 }}
-      {{- end }}
+        {{- end }}
+        
+        - name: config
+          configMap:
+            name: {{ include "oci-billing-exporter.configMapName" . }}
+      
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
