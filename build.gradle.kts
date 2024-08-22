@@ -70,6 +70,6 @@ application {
 
 docker {
     javaApplication {
-        baseImage = "amazoncorretto:21"
+        baseImage = "gcr.io/distroless/java17-debian12"
     }
 }
