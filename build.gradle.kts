@@ -71,5 +71,6 @@ application {
 docker {
     javaApplication {
         baseImage = "gcr.io/distroless/java17-debian12"
+        ports = listOf(2112)
     }
 }
