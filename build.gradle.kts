@@ -11,7 +11,7 @@ plugins {
 }
 
 group = "westelh"
-version = "1.0.0-beta"
+version = "main"
 
 repositories {
     mavenCentral()
