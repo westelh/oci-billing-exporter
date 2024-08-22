@@ -18,7 +18,7 @@ repositories {
 }
 
 dependencies {
-    implementation(platform("com.oracle.oci.sdk:oci-java-sdk-bom:3.46.0"))
+    implementation(platform("com.oracle.oci.sdk:oci-java-sdk-bom:3.46.1"))
     implementation("com.oracle.oci.sdk:oci-java-sdk-common-httpclient-jersey3")
     implementation("com.oracle.oci.sdk:oci-java-sdk-core")
     implementation("com.oracle.oci.sdk:oci-java-sdk-objectstorage")
@@ -37,7 +37,7 @@ dependencies {
     // logging
     implementation("com.google.flogger:flogger:0.8")
     runtimeOnly("com.google.flogger:flogger-system-backend:0.8")
-    runtimeOnly("org.slf4j:slf4j-jdk14:2.0.14")
+    runtimeOnly("org.slf4j:slf4j-jdk14:2.0.16")
 
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.8.1")
@@ -61,7 +61,7 @@ tasks.test {
 }
 
 kotlin {
-    jvmToolchain(21)
+    jvmToolchain(17)
 }
 
 application {
@@ -70,6 +70,7 @@ application {
 
 docker {
     javaApplication {
-        baseImage = "amazoncorretto:21"
+        baseImage = "gcr.io/distroless/java17-debian12"
+        ports = listOf(2112)
     }
 }

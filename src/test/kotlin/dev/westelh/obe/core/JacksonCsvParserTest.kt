@@ -30,4 +30,16 @@ class JacksonCsvParserTest : StringSpec({
             }
         }
     }
+
+    "given more extra rows, parser should not throw exceptions" {
+        val resourceName = "/reports_cost-csv_00000000012345-00000-more-extra.csv"
+        val resourceURL: URL = this.javaClass.getResource(resourceName)!!
+
+        val parser = JacksonCsvParser()
+        resourceURL.openStream().use {
+            shouldNotThrowAny {
+                parser.parse(it)
+            }
+        }
+    }
 })
