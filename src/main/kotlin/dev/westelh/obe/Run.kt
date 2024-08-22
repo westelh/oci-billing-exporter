@@ -22,6 +22,7 @@ import dev.westelh.obe.client.objectstorage.suspendGetObject
 import dev.westelh.obe.client.objectstorage.suspendListObjects
 import dev.westelh.obe.config.*
 import dev.westelh.obe.core.JacksonCsvParser
+import io.prometheus.metrics.exporter.httpserver.HTTPServer
 import io.prometheus.metrics.instrumentation.jvm.JvmMetrics
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
@@ -47,6 +48,11 @@ class Run : CliktCommand() {
     }
 
     override fun run() {
+        HTTPServer.builder()
+            .port(config.server.port)
+            .inetAddress(config.server.host)
+            .buildAndStart()
+
         runBlocking {
 
             logger.atInfo().log("Starting main loop.")
