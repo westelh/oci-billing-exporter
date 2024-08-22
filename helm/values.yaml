@@ -44,7 +44,7 @@ securityContext: {}
 
 service:
   type: ClusterIP
-  port: 80
+  port: 2112
 
 ingress:
   enabled: false
@@ -76,11 +76,11 @@ resources: {}
 
 livenessProbe:
   httpGet:
-    path: /
+    path: /metrics
     port: http
 readinessProbe:
   httpGet:
-    path: /
+    path: /metrics
     port: http
 
 autoscaling:
