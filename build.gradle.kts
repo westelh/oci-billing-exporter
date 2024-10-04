@@ -39,7 +39,7 @@ dependencies {
     runtimeOnly("com.google.flogger:flogger-system-backend:0.8")
     runtimeOnly("org.slf4j:slf4j-jdk14:2.0.16")
 
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.9.0")
 
     implementation("com.fasterxml.jackson.core:jackson-databind:2.18.0")
