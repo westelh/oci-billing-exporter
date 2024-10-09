@@ -32,7 +32,7 @@ dependencies {
     implementation("io.prometheus:prometheus-metrics-instrumentation-jvm:1.3.1")
     implementation("io.prometheus:prometheus-metrics-exporter-httpserver:1.3.1")
 
-    implementation("com.github.ajalt.clikt:clikt:5.0.0")
+    implementation("com.github.ajalt.clikt:clikt:5.0.1")
 
     // logging
     implementation("com.google.flogger:flogger:0.8")
@@ -46,7 +46,7 @@ dependencies {
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.17.2")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.18.0")
-    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.17.2")
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.18.0")
 
     implementation("com.github.victools:jsonschema-generator:4.36.0")
     implementation("com.github.victools:jsonschema-module-jackson:4.36.0")
