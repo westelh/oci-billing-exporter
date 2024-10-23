@@ -6,7 +6,7 @@ buildscript {
 
 plugins {
     application
-    kotlin("jvm") version "2.0.20"
+    kotlin("jvm") version "2.0.21"
     id("com.bmuschko.docker-java-application") version "9.4.0"
 }
 
