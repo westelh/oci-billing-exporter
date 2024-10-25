@@ -47,9 +47,9 @@ jobs:
           build
           !build/tmp
 
-    - name: Get version from gradle
+    - name: Get version from repository metadata
       id: version
-      run: echo version=$(./gradlew properties | awk '/^version:/ {print $2}') >> $GITHUB_OUTPUT
+      run: echo version=$(echo $GITHUB_REF | awk -F'/' '{print $4}') >> $GITHUB_OUTPUT
 
     outputs:
       version: ${{ steps.version.outputs.version }}
