@@ -39,21 +39,14 @@ class Run : CliktCommand() {
 
     private val metrics = Metrics()
 
-    // TODO: This code should run in run()
-    init {
-        JvmMetrics.builder().register()
-    }
-
     companion object {
         val logger: FluentLogger = FluentLogger.forEnclosingClass()
     }
 
     override fun run() {
-        val builder = HTTPServer.builder()
-            .port(config.server.port)
-            .inetAddress(config.server.host)
+        JvmMetrics.builder().register()
 
-        val httpServerLife = HTTPServerLife(builder)
+        val httpServerLife = HTTPServerLife(buildConfiguration())
         addShutdownHook(httpServerLife)
 
         httpServerLife.use {
@@ -164,6 +157,12 @@ class Run : CliktCommand() {
         Runtime.getRuntime().addShutdownHook(Thread {
             httpServerLife.close()
         })
+    }
+
+    private fun buildConfiguration(): HTTPServer.Builder {
+        with(config.server) {
+            return HTTPServer.builder().port(port).inetAddress(host)
+        }
     }
 }
 
