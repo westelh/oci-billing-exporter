@@ -39,6 +39,7 @@ class Run : CliktCommand() {
 
     private val metrics = Metrics()
 
+    // TODO: This code should run in run()
     init {
         JvmMetrics.builder().register()
     }
@@ -48,46 +49,50 @@ class Run : CliktCommand() {
     }
 
     override fun run() {
-        HTTPServer.builder()
+        val builder = HTTPServer.builder()
             .port(config.server.port)
             .inetAddress(config.server.host)
-            .buildAndStart()
 
-        runBlocking {
+        val httpServerLife = HTTPServerLife(builder)
+        addShutdownHook(httpServerLife)
 
-            logger.atInfo().log("Starting main loop.")
-            loop(config.server.delay.toKotlinDuration()) {
-                try {
+        httpServerLife.use {
+            runBlocking {
 
-                    // To get SDK initialized eagerly, trying build them inside loop and try{}.
-                    val auth = getAuthentication()
-                    val objectStorage = buildObjectStorage(auth)
-                    val objectStorageAsync = buildObjectStorageAsync(auth)
-                    val downloadManager = buildDownloadManager(objectStorage)
+                logger.atInfo().log("Starting main loop.")
+                loop(config.server.delay.toKotlinDuration()) {
+                    try {
 
-                    val all = listAllCostReport(objectStorageAsync)
-                    logger.atInfo().log("Retrieved a summary of %d cost reports.", all.count())
+                        // To get SDK initialized eagerly, trying build them inside loop and try{}.
+                        val auth = getAuthentication()
+                        val objectStorage = buildObjectStorage(auth)
+                        val objectStorageAsync = buildObjectStorageAsync(auth)
+                        val downloadManager = buildDownloadManager(objectStorage)
 
-                    if (all.isNotEmpty()) {
-                        val latest = all.maxBy { it.name }.name
+                        val all = listAllCostReport(objectStorageAsync)
+                        logger.atInfo().log("Retrieved a summary of %d cost reports.", all.count())
 
-                        logger.atFine().log("Downloading the latest cost report.")
-                        val getRes = downloadManager.suspendGetObject(buildRequestGetObjectOfCostReport(latest))
+                        if (all.isNotEmpty()) {
+                            val latest = all.maxBy { it.name }.name
 
-                        logger.atFine().log("Parsing object content as cost report.")
-                        val report = getRes.inputStream.use { JacksonCsvParser().parse(GZIPInputStream(it)) }
+                            logger.atFine().log("Downloading the latest cost report.")
+                            val getRes = downloadManager.suspendGetObject(buildRequestGetObjectOfCostReport(latest))
 
-                        logger.atFine().log("Writing metrics for each items in the cost report.")
-                        report.items.forEach { metrics.record(it) }
+                            logger.atFine().log("Parsing object content as cost report.")
+                            val report = getRes.inputStream.use { JacksonCsvParser().parse(GZIPInputStream(it)) }
 
-                        logger.atInfo().log("Downloaded the latest cost report, created at %s, with %d items.", 0, report.items.count())
+                            logger.atFine().log("Writing metrics for each items in the cost report.")
+                            report.items.forEach { metrics.record(it) }
+
+                            logger.atInfo().log("Downloaded the latest cost report, created at %s, with %d items.", 0, report.items.count())
+                        }
+                    } catch (ce: CancellationException) {
+                        throw ce
+                    } catch (e: Exception) {
+                        logger.atWarning().withCause(e).log("Updating metrics is cancelled because: %s", e.message)
                     }
-                } catch (ce: CancellationException) {
-                    throw ce
-                } catch (e: Exception) {
-                    logger.atWarning().withCause(e).log("Updating metrics is cancelled because: %s", e.message)
+                    logger.atInfo().log("Update is finished. Sleeping for %s.", config.server.delay.toKotlinDuration().toString(DurationUnit.SECONDS))
                 }
-                logger.atInfo().log("Update is finished. Sleeping for %s.", config.server.delay.toKotlinDuration().toString(DurationUnit.SECONDS))
             }
         }
     }
@@ -153,6 +158,12 @@ class Run : CliktCommand() {
         } while (nextStartWith.isNotBlank())
 
         return sum
+    }
+
+    private fun addShutdownHook(httpServerLife: HTTPServerLife) {
+        Runtime.getRuntime().addShutdownHook(Thread {
+            httpServerLife.close()
+        })
     }
 }
 
