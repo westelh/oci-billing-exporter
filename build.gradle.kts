@@ -6,7 +6,7 @@ buildscript {
 
 plugins {
     application
-    kotlin("jvm") version "2.0.20"
+    kotlin("jvm") version "2.0.21"
     id("com.bmuschko.docker-java-application") version "9.4.0"
 }
 
@@ -18,7 +18,7 @@ repositories {
 }
 
 dependencies {
-    implementation(platform("com.oracle.oci.sdk:oci-java-sdk-bom:3.50.1"))
+    implementation(platform("com.oracle.oci.sdk:oci-java-sdk-bom:3.52.0"))
     implementation("com.oracle.oci.sdk:oci-java-sdk-common-httpclient-jersey3")
     implementation("com.oracle.oci.sdk:oci-java-sdk-core")
     implementation("com.oracle.oci.sdk:oci-java-sdk-objectstorage")
@@ -28,11 +28,11 @@ dependencies {
         }
     }
 
-    implementation("io.prometheus:prometheus-metrics-core:1.3.1")
-    implementation("io.prometheus:prometheus-metrics-instrumentation-jvm:1.3.1")
-    implementation("io.prometheus:prometheus-metrics-exporter-httpserver:1.3.1")
+    implementation("io.prometheus:prometheus-metrics-core:1.3.2")
+    implementation("io.prometheus:prometheus-metrics-instrumentation-jvm:1.3.2")
+    implementation("io.prometheus:prometheus-metrics-exporter-httpserver:1.3.2")
 
-    implementation("com.github.ajalt.clikt:clikt:5.0.0")
+    implementation("com.github.ajalt.clikt:clikt:5.0.1")
 
     // logging
     implementation("com.google.flogger:flogger:0.8")
@@ -43,10 +43,10 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.9.0")
 
     implementation("com.fasterxml.jackson.core:jackson-databind:2.18.0")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.17.2")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.18.0")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
-    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.17.2")
-    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.17.2")
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.18.0")
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.18.0")
 
     implementation("com.github.victools:jsonschema-generator:4.36.0")
     implementation("com.github.victools:jsonschema-module-jackson:4.36.0")

@@ -22,4 +22,4 @@ target: xxxxxxxxxx
 ```
 
 You can get the jsonschema by hitting a sub command,
-``` docker run ghcr.io/westelh/oci-billing-exporter:latest dump-config-schema > schema.jsoon ```
+``` docker run ghcr.io/westelh/oci-billing-exporter:latest dump-config-schema > schema.json ```
