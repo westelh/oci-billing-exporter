@@ -7,24 +7,10 @@ import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.file
 import com.google.common.flogger.FluentLogger
 import com.oracle.bmc.auth.AbstractAuthenticationDetailsProvider
-import com.oracle.bmc.objectstorage.ObjectStorage
-import com.oracle.bmc.objectstorage.ObjectStorageAsync
-import com.oracle.bmc.objectstorage.ObjectStorageAsyncClient
-import com.oracle.bmc.objectstorage.ObjectStorageClient
-import com.oracle.bmc.objectstorage.model.ObjectSummary
-import com.oracle.bmc.objectstorage.requests.GetObjectRequest
-import com.oracle.bmc.objectstorage.requests.ListObjectsRequest
-import com.oracle.bmc.objectstorage.transfer.DownloadManager
-import dev.westelh.obe.client.billingBucketName
-import dev.westelh.obe.client.billingNamespace
-import dev.westelh.obe.client.billingPrefixForCostReport
-import dev.westelh.obe.client.objectstorage.suspendGetObject
-import dev.westelh.obe.client.objectstorage.suspendListObjects
 import dev.westelh.obe.config.*
 import dev.westelh.obe.core.JacksonCsvParser
 import io.prometheus.metrics.exporter.httpserver.HTTPServer
 import io.prometheus.metrics.instrumentation.jvm.JvmMetrics
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import java.util.zip.GZIPInputStream
@@ -51,40 +37,29 @@ class Run : CliktCommand() {
 
         httpServerLife.use {
             runBlocking {
-
-                logger.atInfo().log("Starting main loop.")
                 loop(config.server.delay.toKotlinDuration()) {
-                    try {
-
+                    val report = runCatching {
                         // To get SDK initialized eagerly, trying build them inside loop and try{}.
                         val auth = getAuthentication()
-                        val objectStorage = buildObjectStorage(auth)
-                        val objectStorageAsync = buildObjectStorageAsync(auth)
-                        val downloadManager = buildDownloadManager(objectStorage)
+                        val downloader = CostReportDownloader(auth, config)
 
-                        val all = listAllCostReport(objectStorageAsync)
-                        logger.atInfo().log("Retrieved a summary of %d cost reports.", all.count())
-
-                        if (all.isNotEmpty()) {
-                            val latest = all.maxBy { it.name }.name
-
-                            logger.atFine().log("Downloading the latest cost report.")
-                            val getRes = downloadManager.suspendGetObject(buildRequestGetObjectOfCostReport(latest))
-
-                            logger.atFine().log("Parsing object content as cost report.")
-                            val report = getRes.inputStream.use { JacksonCsvParser().parse(GZIPInputStream(it)) }
-
-                            logger.atFine().log("Writing metrics for each items in the cost report.")
-                            report.items.forEach { metrics.record(it) }
-
-                            logger.atInfo().log("Downloaded the latest cost report, created at %s, with %d items.", 0, report.items.count())
+                        downloader.listAllCostReport()?.let { all ->
+                            val latest = all.maxBy { it.name }
+                            downloader.downloadCostReport(latest.name)?.let {
+                                it.inputStream.use {
+                                    val report = JacksonCsvParser().parse(GZIPInputStream(it))
+                                    report.items.forEach { metrics.record(it) }
+                                    report
+                                }
+                            }
                         }
-                    } catch (ce: CancellationException) {
-                        throw ce
-                    } catch (e: Exception) {
-                        logger.atWarning().withCause(e).log("Updating metrics is cancelled because: %s", e.message)
+                    }.getOrNull()
+
+                    if (report != null) {
+                        logger.atInfo().log("Synced %d items", report.items.size)
+                    } else {
+                        logger.atWarning().log("Failed to write metrics")
                     }
-                    logger.atInfo().log("Update is finished. Sleeping for %s.", config.server.delay.toKotlinDuration().toString(DurationUnit.SECONDS))
                 }
             }
         }
@@ -113,46 +88,6 @@ class Run : CliktCommand() {
         }
     }
 
-    private fun buildObjectStorage(adp: AbstractAuthenticationDetailsProvider): ObjectStorage = ObjectStorageClient.builder().build(adp)
-
-    private fun buildObjectStorageAsync(adp: AbstractAuthenticationDetailsProvider): ObjectStorageAsync = ObjectStorageAsyncClient.builder().build(adp)
-
-    private fun buildDownloadManager(objectStorage: ObjectStorage): DownloadManager =
-        DownloadManager(objectStorage, buildDownloadConfiguration(config.server.download))
-
-    private fun buildRequestListObjectOfCostReport(start: String = ""): ListObjectsRequest = ListObjectsRequest.builder()
-        .billingNamespace()
-        .billingBucketName(config.targetTenantId)
-        .billingPrefixForCostReport()
-        .start(start)
-        .build()
-
-    private fun buildRequestGetObjectOfCostReport(name: String): GetObjectRequest = GetObjectRequest.builder()
-        .billingNamespace()
-        .billingBucketName(config.targetTenantId)
-        .objectName(name)
-        .build()
-
-    private suspend fun listAllCostReport(objectStorageAsync: ObjectStorageAsync): List<ObjectSummary> {
-        logger.atFine().log("Started getting the list of objects in the designated object storage bucket.")
-
-        val sum = mutableListOf<ObjectSummary>()
-        var nextStartWith = ""
-
-        do {
-            logger.atFiner().log("Preparing a request for a list of objects that start with %s", nextStartWith)
-            val nextRequest = buildRequestListObjectOfCostReport(nextStartWith)
-
-            logger.atFiner().log("Suspend the coroutine until the request completes: %s", nextRequest)
-            val res = objectStorageAsync.suspendListObjects(nextRequest)
-
-            sum.addAll(res.listObjects.objects)
-            nextStartWith = res.listObjects.nextStartWith ?: ""
-        } while (nextStartWith.isNotBlank())
-
-        return sum
-    }
-
     private fun addShutdownHook(httpServerLife: HTTPServerLife) {
         Runtime.getRuntime().addShutdownHook(Thread {
             httpServerLife.close()
@@ -164,11 +99,13 @@ class Run : CliktCommand() {
             return HTTPServer.builder().port(port).inetAddress(host)
         }
     }
-}
 
-suspend fun <R> loop(delay: Duration, job: suspend () -> R) {
-    while (true) {
-        job()
-        delay(delay)
+    suspend fun <R> loop(delay: Duration, job: suspend () -> R) {
+        while (true) {
+            job()
+            logger.atInfo().log("Sleeping for %s seconds...", delay.toString(DurationUnit.SECONDS))
+            delay(delay)
+        }
     }
 }
+
