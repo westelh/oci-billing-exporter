@@ -4,7 +4,7 @@ This application exports the resource usage and its cost on Oracle Cloud Infrast
 
 ## Run
 ```
-$ docker run ghcr.io/westelh/oci-billing-exporter:latest run --help
+$ docker run ghcr.io/westelh/oci-billing-exporter:v1.0.0 run --help
 Usage: oci-billing-exporter run [<options>]
 
 Options:
