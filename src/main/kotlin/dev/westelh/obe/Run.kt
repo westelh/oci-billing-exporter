@@ -99,13 +99,13 @@ class Run : CliktCommand() {
             return HTTPServer.builder().port(port).inetAddress(host)
         }
     }
-
-    suspend fun <R> loop(delay: Duration, job: suspend () -> R) {
-        while (true) {
-            job()
-            logger.atInfo().log("Sleeping for %s seconds...", delay.toString(DurationUnit.SECONDS))
-            delay(delay)
-        }
-    }
 }
 
+suspend fun <R> loop(delay: Duration, job: suspend () -> R) {
+    val logger = FluentLogger.forEnclosingClass()
+    while (true) {
+        job()
+        logger.atInfo().log("Sleeping for %s seconds...", delay.toString(DurationUnit.SECONDS))
+        delay(delay)
+    }
+}
