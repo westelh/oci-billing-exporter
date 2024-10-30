@@ -15,7 +15,7 @@ class LoopKtTest {
     fun jobIsCancellable() {
         runBlocking {
             shouldCompleteWithin(100, TimeUnit.MILLISECONDS) {
-                launch { loop(Duration.INFINITE) { } }.cancelAndJoin()
+                launch { repeatInfinite(Duration.INFINITE) { } }.cancelAndJoin()
             }
         }
     }
@@ -24,7 +24,7 @@ class LoopKtTest {
     fun cancellationExceptionDoesNotHaltTheCode() {
         runBlocking {
             shouldNotThrowAny {
-                launch { loop(Duration.ZERO) { throw CancellationException() } }
+                launch { repeatInfinite(Duration.ZERO) { throw CancellationException() } }
             }
         }
     }

@@ -11,8 +11,10 @@ import dev.westelh.obe.config.*
 import dev.westelh.obe.core.JacksonCsvParser
 import io.prometheus.metrics.exporter.httpserver.HTTPServer
 import io.prometheus.metrics.instrumentation.jvm.JvmMetrics
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.supervisorScope
 import java.util.zip.GZIPInputStream
 import kotlin.time.Duration
 import kotlin.time.DurationUnit
@@ -37,7 +39,7 @@ class Run : CliktCommand() {
 
         httpServerLife.use {
             runBlocking {
-                loop(config.server.delay.toKotlinDuration()) {
+                repeatInfinite(config.server.delay.toKotlinDuration()) {
                     val report = runCatching {
                         // To get SDK initialized eagerly, trying build them inside loop and try{}.
                         val auth = getAuthentication()
@@ -101,10 +103,10 @@ class Run : CliktCommand() {
     }
 }
 
-suspend fun <R> loop(delay: Duration, job: suspend () -> R) {
+suspend fun <R> repeatInfinite(delay: Duration, job: suspend CoroutineScope.() -> R) {
     val logger = FluentLogger.forEnclosingClass()
     while (true) {
-        job()
+        supervisorScope(job)
         logger.atInfo().log("Sleeping for %s seconds...", delay.toString(DurationUnit.SECONDS))
         delay(delay)
     }
