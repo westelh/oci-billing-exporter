@@ -1,0 +1,30 @@
+name: Helm
+
+on:
+  push:
+    branches: [ "helm" ]
+
+jobs:
+  push:
+
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+    - uses: actions/checkout@v4
+    - uses: azure/setup-helm@v4.2.0
+      with:
+        version: '3.16.2'
+
+    - name: Login to Registry
+      run: |
+        echo ${{ secrets.GITHUB_TOKEN }} | helm registry login ghcr.io/${{ github.repository_owner }} --username ${{ github.repository_owner }} --password-stdin
+    
+    - name: Package Helm Chart
+      run: |
+        helm package helm/
+    
+    - name: Push Helm Chart
+      run: |
+        helm push oci-billing-exporter-*.tgz oci://ghcr.io/${{ github.repository_owner }}/chart
