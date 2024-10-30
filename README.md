@@ -26,4 +26,6 @@ You can get the jsonschema by hitting a sub command,
 
 ## Helm
 Helm chart is packaged as oci.
+```
 $ helm install oci-billing-exporter oci://ghcr.io/westelh/charts/oci-billing-exporter --version 0.1.0
+```
