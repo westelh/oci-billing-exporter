@@ -28,4 +28,4 @@ jobs:
     
     - name: Push Helm Chart
       run: |
-        helm push oci-billing-exporter-*.tgz oci://ghcr.io/${{ github.repository_owner }}/chart
+        helm push oci-billing-exporter-*.tgz oci://ghcr.io/${{ github.repository_owner }}/charts
