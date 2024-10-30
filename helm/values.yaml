@@ -113,3 +113,44 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+# CRDs for prometheus-operator
+monitoring:
+  # ServiceMonitor for Prometheus Operator
+  serviceMonitor:
+    # If enabled, creates a ServiceMonitor
+    enabled: false
+    # NamespaceSelector for ServiceMonitor
+    namespaceSelector: {}
+    # Annotations for ServiceMonitor
+    annotations: {}
+    # Labels for ServiceMonitor
+    labels: {}
+    # ScrapeInterval
+    interval: 15s
+    # Timeout for scraping metrics
+    scrapeTimeout: null
+    # RelabelConfig allows dynamic rewriting of the label set for targets, alerts, scraped samples and remote write samples.
+    # See https://github.com/prometheus-operator/prometheus-operator/blob/master/Documentation/api.md#relabelconfig
+    relabelings: []
+    # MetricRelabelConfigs to apply to samples before ingestion.
+    # See https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#endpoint
+    metricRelabelings: []
+    # Scheme to use when scraping
+    scheme: http
+    # serviceMonitor will use this for health checking
+    tlsConfig: null
+    # MetricsInstanc resources for Grafana Operator
+    metricsInstance:
+      enabled: false
+      annotations: {}
+      labels: {}
+      remoteWrite: null
+  
+  # Dashboard for Grafana(by grafana-operator)
+  grafanaDashboard:
+    enabled: false
+    additionalLabels: {}
+  
+  # Rules for Prometheus Operator
+  rules: {}
