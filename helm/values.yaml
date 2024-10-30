@@ -11,7 +11,10 @@ image:
   tag: ""
 
 config:
-  target: ""
+  target: "xxxxxxx"
+  server:
+    port: 2112
+    host: 0.0.0.0
 
 imagePullSecrets: []
 nameOverride: ""
@@ -78,10 +81,12 @@ livenessProbe:
   httpGet:
     path: /metrics
     port: http
+  initialDelaySeconds: 5
 readinessProbe:
   httpGet:
     path: /metrics
     port: http
+  initialDelaySeconds: 5
 
 autoscaling:
   enabled: false
