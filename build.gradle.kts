@@ -28,9 +28,9 @@ dependencies {
         }
     }
 
-    implementation("io.prometheus:prometheus-metrics-core:1.3.5")
-    implementation("io.prometheus:prometheus-metrics-instrumentation-jvm:1.3.5")
-    implementation("io.prometheus:prometheus-metrics-exporter-httpserver:1.3.5")
+    implementation("io.prometheus:prometheus-metrics-core:1.3.9")
+    implementation("io.prometheus:prometheus-metrics-instrumentation-jvm:1.3.9")
+    implementation("io.prometheus:prometheus-metrics-exporter-httpserver:1.3.9")
 
     implementation("com.github.ajalt.clikt:clikt:5.0.1")
 
