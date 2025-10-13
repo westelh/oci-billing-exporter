@@ -49,7 +49,7 @@ dependencies {
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.20.0")
 
     implementation("com.github.victools:jsonschema-generator:4.37.0")
-    implementation("com.github.victools:jsonschema-module-jackson:4.36.0")
+    implementation("com.github.victools:jsonschema-module-jackson:4.38.0")
 
     testImplementation("org.jetbrains.kotlin:kotlin-test")
     testImplementation("io.kotest:kotest-runner-junit5:5.9.1")
