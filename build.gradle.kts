@@ -18,7 +18,7 @@ repositories {
 }
 
 dependencies {
-    implementation(platform("com.oracle.oci.sdk:oci-java-sdk-bom:3.56.0"))
+    implementation(platform("com.oracle.oci.sdk:oci-java-sdk-bom:3.74.2"))
     implementation("com.oracle.oci.sdk:oci-java-sdk-common-httpclient-jersey3")
     implementation("com.oracle.oci.sdk:oci-java-sdk-core")
     implementation("com.oracle.oci.sdk:oci-java-sdk-objectstorage")
