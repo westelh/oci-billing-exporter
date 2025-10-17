@@ -23,7 +23,7 @@ dependencies {
     implementation("com.oracle.oci.sdk:oci-java-sdk-core")
     implementation("com.oracle.oci.sdk:oci-java-sdk-objectstorage")
     constraints {
-        implementation("commons-codec:commons-codec:1.17.1") {
+        implementation("commons-codec:commons-codec:1.19.0") {
             because("commons-codec pulled with oci-java-sdk-common-httpclient-jersey3:3.45.0 has a known vulnerability: Cxeb68d52e-5509")
         }
     }
