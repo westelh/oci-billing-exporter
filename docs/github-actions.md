@@ -1,4 +1,4 @@
-# GitHub Actions audit (2026-10-20)
+# GitHub Actions audit (2026-10-21)
 
 CI builds and tests on pull requests and pushes to `main`. Both CI and Release
 produce application JARs, distribution archives, and the Gradle-generated Docker
@@ -33,7 +33,7 @@ by these actions; this configuration does not target older self-hosted runners.
 | Docker login | v3 | v4.6.0 | Current stable release; retains existing credentials. |
 | Docker build/push | v6 | v7.4.0 | Current stable release; retains path context and cache-only/registry exporters. |
 | JDK / container runtime | 17 | 17 | Keep the LTS target shared by `jvmToolchain(17)` and distroless Java 17. Updating an Action runtime does not require changing the application's Java target. |
-| Gradle Wrapper | 8.5 | 8.5 | Retain the application's existing wrapper for this workflow update. Build, tests and Docker-context generation are checked with this version; a Gradle major upgrade needs a separate Kotlin/Docker-plugin compatibility review. |
+| Gradle Wrapper | 8.14.6 | 8.14.6 | Retain the application's existing wrapper for this workflow update. Build, tests and Docker-context generation are checked with this version; a Gradle major upgrade needs a separate Kotlin/Docker-plugin compatibility review. |
 
 ## Validation
 
@@ -50,7 +50,7 @@ push events and cannot be established by a PR's cache-only builds.
 - [Artifact download releases](https://github.com/actions/download-artifact/releases)
 - [Gradle Actions v5.0.2](https://github.com/gradle/actions/releases/tag/v5.0.2)
 - [Gradle Actions v6 license change](https://github.com/gradle/actions/releases/tag/v6.0.0)
-- [Gradle Java compatibility](https://docs.gradle.org/8.5/userguide/compatibility.html)
+- [Gradle Java compatibility](https://docs.gradle.org/8.14.6/userguide/compatibility.html)
 - [Docker QEMU releases](https://github.com/docker/setup-qemu-action/releases)
 - [Docker Buildx releases](https://github.com/docker/setup-buildx-action/releases)
 - [Docker login releases](https://github.com/docker/login-action/releases)
