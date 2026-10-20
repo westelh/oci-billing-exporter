@@ -1,43 +1,11 @@
 package dev.westelh.obe.core
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.annotation.JsonPropertyOrder
-import com.fasterxml.jackson.dataformat.csv.CsvMapper
-import com.fasterxml.jackson.dataformat.csv.CsvSchema
 
 data class CostReport(val items: List<Item>) {
 
-    @JsonPropertyOrder(
-        "lineItem/referenceNo",
-        "lineItem/tenantId",
-        "lineItem/intervalUsageStart",
-        "lineItem/intervalUsageEnd",
-        "product/service",
-        "product/compartmentId",
-        "product/compartmentName",
-        "product/region",
-        "product/availabilityDomain",
-        "product/resourceId",
-        "usage/billedQuantity",
-        "usage/billedQuantityOverage",
-        "cost/subscriptionId",
-        "cost/productSku",
-        "product/Description",
-        "cost/unitPrice",
-        "cost/unitPriceOverage",
-        "cost/myCost",
-        "cost/myCostOverage",
-        "cost/currencyCode",
-        "cost/billingUnitReadable",
-        "cost/skuUnitDescription",
-        "cost/overageFlag",
-        "lineItem/isCorrection",
-        "lineItem/backreferenceNo",
-        "tags/OKEclusterName",
-        "tags/Oracle-Tags.CreatedBy",
-        "tags/Oracle-Tags.CreatedOn",
-        "tags/orcl-cloud.free-tier-retained"
-    )
+    @JsonIgnoreProperties(ignoreUnknown = true)
     class Item {
         @JsonProperty("lineItem/referenceNo")
         var referenceNo: String = ""
@@ -125,10 +93,6 @@ data class CostReport(val items: List<Item>) {
 
         @JsonProperty("tags/orcl-cloud.free-tier-retained")
         var freeTierRetained: String = ""
-
-        companion object {
-            val schema: CsvSchema = CsvMapper().schemaFor(Item::class.java).withHeader()
-        }
     }
 }
 
