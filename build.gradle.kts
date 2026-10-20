@@ -42,11 +42,14 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.9.0")
 
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.22.3")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.20.0")
+    // Manage all Jackson versions here, including transitive OCI SDK dependencies.
+    // Follow the BOM's compatible version set (annotations uses a minor-only version).
+    implementation(platform("com.fasterxml.jackson:jackson-bom:2.22.3"))
+    implementation("com.fasterxml.jackson.core:jackson-databind")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
-    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.20.0")
-    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.20.0")
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml")
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-csv")
 
     implementation("com.github.victools:jsonschema-generator:4.37.0")
     implementation("com.github.victools:jsonschema-module-jackson:4.38.0")
