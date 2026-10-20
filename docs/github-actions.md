@@ -17,8 +17,8 @@ available, rather than attempting submission from fork/Dependabot pull requests.
 
 ## Version decisions
 
-All actions are pinned to the release commit, with the release version beside
-it. GitHub-hosted `ubuntu-latest` runners supply the Node 24-capable runner needed
+Actions use major-version tags so compatible updates are picked up automatically.
+The table records the releases reviewed during this audit. GitHub-hosted `ubuntu-latest` runners supply the Node 24-capable runner needed
 by these actions; this configuration does not target older self-hosted runners.
 
 | Component | Previous | Selected | Decision |
