@@ -64,7 +64,9 @@ dependencies {
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml")
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-csv")
 
-    implementation("com.github.victools:jsonschema-generator:4.37.0")
+    implementation(platform("com.github.victools:jsonschema-generator-bom:4.37.0"))
+    implementation("com.github.victools:jsonschema-generator")
+    // Preserve the existing module version; align Victools versions separately.
     implementation("com.github.victools:jsonschema-module-jackson:4.38.0")
 
     testImplementation(platform("io.kotest:kotest-bom:5.9.1"))
