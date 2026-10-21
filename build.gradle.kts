@@ -28,19 +28,22 @@ dependencies {
         }
     }
 
-    implementation("io.prometheus:prometheus-metrics-core:1.4.1")
-    implementation("io.prometheus:prometheus-metrics-instrumentation-jvm:1.4.1")
-    implementation("io.prometheus:prometheus-metrics-exporter-httpserver:1.4.1")
+    implementation(platform("io.prometheus:prometheus-metrics-bom:1.4.1"))
+    implementation("io.prometheus:prometheus-metrics-core")
+    implementation("io.prometheus:prometheus-metrics-instrumentation-jvm")
+    implementation("io.prometheus:prometheus-metrics-exporter-httpserver")
 
     implementation("com.github.ajalt.clikt:clikt:5.0.3")
 
     // logging
     implementation("com.google.flogger:flogger:0.9")
     runtimeOnly("com.google.flogger:flogger-system-backend:0.9")
-    runtimeOnly("org.slf4j:slf4j-jdk14:2.0.16")
+    implementation(platform("org.slf4j:slf4j-bom:2.0.16"))
+    runtimeOnly("org.slf4j:slf4j-jdk14")
 
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.9.0")
+    implementation(platform("org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.9.0"))
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm")
 
     // Manage all Jackson versions here, including transitive OCI SDK dependencies.
     // Follow the BOM's compatible version set (annotations uses a minor-only version).
@@ -55,8 +58,9 @@ dependencies {
     implementation("com.github.victools:jsonschema-module-jackson:4.38.0")
 
     testImplementation("org.jetbrains.kotlin:kotlin-test")
-    testImplementation("io.kotest:kotest-runner-junit5:5.9.1")
-    testImplementation("io.kotest:kotest-assertions-core:5.9.1")
+    testImplementation(platform("io.kotest:kotest-bom:5.9.1"))
+    testImplementation("io.kotest:kotest-runner-junit5")
+    testImplementation("io.kotest:kotest-assertions-core")
 }
 
 tasks.test {
