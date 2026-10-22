@@ -9,3 +9,9 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
+    ignore:
+      # Victools 5 requires Jackson 3; retain Jackson 2 while the OCI SDK uses it.
+      # Continue receiving Victools 4.x minor and patch updates.
+      - dependency-name: "com.github.victools:jsonschema-generator-bom"
+        update-types:
+          - "version-update:semver-major"
