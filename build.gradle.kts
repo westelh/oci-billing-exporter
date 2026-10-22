@@ -21,13 +21,13 @@ dependencies {
     // Kotlin libraries (stdlib is added by the Kotlin JVM plugin).
     implementation(platform("org.jetbrains.kotlin:kotlin-bom:2.2.20"))
 
-    implementation(platform("com.oracle.oci.sdk:oci-java-sdk-bom:3.74.2"))
+    implementation(platform("com.oracle.oci.sdk:oci-java-sdk-bom:3.97.2"))
     implementation("com.oracle.oci.sdk:oci-java-sdk-common-httpclient-jersey3")
     implementation("com.oracle.oci.sdk:oci-java-sdk-core")
     implementation("com.oracle.oci.sdk:oci-java-sdk-objectstorage")
     constraints {
         implementation("commons-codec:commons-codec:1.23.0") {
-            because("HttpClient 4.5.13 via the OCI SDK requests 1.11, affected by Cxeb68d52e-5509 (<1.13); retain the constraint and include the 1.23.0 codec hardening fixes")
+            because("HttpClient 4.5.14 via the OCI SDK requests 1.11, affected by Cxeb68d52e-5509 (<1.13); retain the constraint and include the 1.23.0 codec hardening fixes")
         }
     }
 
