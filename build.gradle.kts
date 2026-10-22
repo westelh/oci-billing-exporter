@@ -20,7 +20,6 @@ repositories {
 dependencies {
     // Kotlin libraries (stdlib is added by the Kotlin JVM plugin).
     implementation(platform("org.jetbrains.kotlin:kotlin-bom:2.2.20"))
-    testImplementation("org.jetbrains.kotlin:kotlin-test")
 
     implementation(platform("com.oracle.oci.sdk:oci-java-sdk-bom:3.74.2"))
     implementation("com.oracle.oci.sdk:oci-java-sdk-common-httpclient-jersey3")
@@ -62,7 +61,7 @@ dependencies {
     implementation("com.github.victools:jsonschema-generator")
     implementation("com.github.victools:jsonschema-module-jackson")
 
-    testImplementation(platform("io.kotest:kotest-bom:5.9.1"))
+    testImplementation(platform("io.kotest:kotest-bom:6.2.5"))
     testImplementation("io.kotest:kotest-runner-junit5")
     testImplementation("io.kotest:kotest-assertions-core")
 }
