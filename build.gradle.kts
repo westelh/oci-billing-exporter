@@ -41,7 +41,7 @@ dependencies {
     // logging
     implementation("com.google.flogger:flogger:0.9")
     runtimeOnly("com.google.flogger:flogger-system-backend:0.9")
-    implementation(platform("org.slf4j:slf4j-bom:2.0.16"))
+    implementation(platform("org.slf4j:slf4j-bom:2.0.20"))
     runtimeOnly("org.slf4j:slf4j-jdk14")
 
     implementation(platform("org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.9.0"))
