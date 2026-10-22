@@ -6,8 +6,8 @@ buildscript {
 
 plugins {
     application
-    kotlin("jvm") version "2.2.20"
-    id("com.bmuschko.docker-java-application") version "9.4.0"
+    kotlin("jvm") version "2.3.21"
+    id("com.bmuschko.docker-java-application") version "10.0.0"
 }
 
 group = "westelh"
@@ -19,7 +19,7 @@ repositories {
 
 dependencies {
     // Kotlin libraries (stdlib is added by the Kotlin JVM plugin).
-    implementation(platform("org.jetbrains.kotlin:kotlin-bom:2.2.20"))
+    implementation(platform("org.jetbrains.kotlin:kotlin-bom:2.3.21"))
 
     implementation(platform("com.oracle.oci.sdk:oci-java-sdk-bom:3.97.2"))
     implementation("com.oracle.oci.sdk:oci-java-sdk-common-httpclient-jersey3")
