@@ -50,7 +50,7 @@ dependencies {
 
     // Manage all Jackson versions here, including transitive OCI SDK dependencies.
     // Follow the BOM's compatible version set (annotations uses a minor-only version).
-    implementation(platform("com.fasterxml.jackson:jackson-bom:2.22.3"))
+    implementation(platform("com.fasterxml.jackson:jackson-bom:2.22.4"))
     implementation("com.fasterxml.jackson.core:jackson-databind")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
