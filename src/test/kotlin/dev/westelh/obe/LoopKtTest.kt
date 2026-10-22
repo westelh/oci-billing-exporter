@@ -7,13 +7,13 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import java.util.concurrent.TimeUnit
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
 
 class LoopKtTest : StringSpec({
     "job is cancellable" {
         runBlocking {
-            shouldCompleteWithin(100, TimeUnit.MILLISECONDS) {
+            shouldCompleteWithin(100.milliseconds) {
                 launch { repeatInfinite(Duration.INFINITE) { } }.cancelAndJoin()
             }
         }
