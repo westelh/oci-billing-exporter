@@ -1,5 +1,9 @@
 # Project Instructions
 
+## Additional Agent Instructions
+
+- Before starting work, read and follow [Linear・GitHub連携ルール](agent-instructions/linear-github.md).
+
 ## Pull Request and Commit Language
 
 - Write pull request titles and descriptions in English.
