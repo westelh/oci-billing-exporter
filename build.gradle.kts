@@ -6,7 +6,7 @@ buildscript {
 
 plugins {
     application
-    kotlin("jvm") version "2.2.20"
+    kotlin("jvm") version "2.3.0"
     id("com.bmuschko.docker-java-application") version "9.4.0"
 }
 
@@ -19,7 +19,7 @@ repositories {
 
 dependencies {
     // Kotlin libraries (stdlib is added by the Kotlin JVM plugin).
-    implementation(platform("org.jetbrains.kotlin:kotlin-bom:2.2.20"))
+    implementation(platform("org.jetbrains.kotlin:kotlin-bom:2.3.0"))
 
     implementation(platform("com.oracle.oci.sdk:oci-java-sdk-bom:3.97.2"))
     implementation("com.oracle.oci.sdk:oci-java-sdk-common-httpclient-jersey3")
@@ -36,7 +36,7 @@ dependencies {
     implementation("io.prometheus:prometheus-metrics-instrumentation-jvm")
     implementation("io.prometheus:prometheus-metrics-exporter-httpserver")
 
-    implementation("com.github.ajalt.clikt:clikt:5.0.3")
+    implementation("com.github.ajalt.clikt:clikt:5.1.0")
 
     // logging
     implementation("com.google.flogger:flogger:0.9")
