@@ -9,3 +9,7 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
+    ignore:
+      - dependency-name: "com.github.victools:jsonschema-generator-bom"
+        update-types:
+          - "version-update:semver-major"
