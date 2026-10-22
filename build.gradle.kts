@@ -20,7 +20,6 @@ repositories {
 dependencies {
     // Kotlin libraries (stdlib is added by the Kotlin JVM plugin).
     implementation(platform("org.jetbrains.kotlin:kotlin-bom:2.2.20"))
-    testImplementation("org.jetbrains.kotlin:kotlin-test")
 
     implementation(platform("com.oracle.oci.sdk:oci-java-sdk-bom:3.74.2"))
     implementation("com.oracle.oci.sdk:oci-java-sdk-common-httpclient-jersey3")
