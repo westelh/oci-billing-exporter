@@ -1,18 +1,17 @@
 package dev.westelh.obe
 
 import io.kotest.assertions.throwables.shouldNotThrowAny
+import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.concurrent.suspension.shouldCompleteWithin
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.util.concurrent.TimeUnit
-import kotlin.test.Test
 import kotlin.time.Duration
 
-class LoopKtTest {
-    @Test
-    fun jobIsCancellable() {
+class LoopKtTest : StringSpec({
+    "job is cancellable" {
         runBlocking {
             shouldCompleteWithin(100, TimeUnit.MILLISECONDS) {
                 launch { repeatInfinite(Duration.INFINITE) { } }.cancelAndJoin()
@@ -20,12 +19,11 @@ class LoopKtTest {
         }
     }
 
-    @Test
-    fun cancellationExceptionDoesNotHaltTheCode() {
+    "cancellation exception does not halt the code" {
         runBlocking {
             shouldNotThrowAny {
                 launch { repeatInfinite(Duration.ZERO) { throw CancellationException() } }
             }
         }
     }
-}
+})
