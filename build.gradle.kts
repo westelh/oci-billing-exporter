@@ -31,7 +31,7 @@ dependencies {
         }
     }
 
-    implementation(platform("io.prometheus:prometheus-metrics-bom:1.4.1"))
+    implementation(platform("io.prometheus:prometheus-metrics-bom:1.10.0"))
     implementation("io.prometheus:prometheus-metrics-core")
     implementation("io.prometheus:prometheus-metrics-instrumentation-jvm")
     implementation("io.prometheus:prometheus-metrics-exporter-httpserver")
