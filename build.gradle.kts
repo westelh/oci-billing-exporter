@@ -36,7 +36,7 @@ dependencies {
     implementation("io.prometheus:prometheus-metrics-instrumentation-jvm")
     implementation("io.prometheus:prometheus-metrics-exporter-httpserver")
 
-    implementation("com.github.ajalt.clikt:clikt:5.0.3")
+    implementation("com.github.ajalt.clikt:clikt:5.1.0")
 
     // logging
     implementation("com.google.flogger:flogger:0.9")
