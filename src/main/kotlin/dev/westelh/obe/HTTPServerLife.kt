@@ -20,6 +20,8 @@ class HTTPServerLife(builder: HTTPServer.Builder) : Closeable {
         throw e
     }
 
+    val port: Int get() = httpServer.port
+
     init {
         logger.atInfo().log("Started HTTP server on port %s", httpServer.port)
     }
