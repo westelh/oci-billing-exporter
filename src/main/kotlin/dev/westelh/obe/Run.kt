@@ -25,13 +25,12 @@ class Run : CliktCommand() {
         Config.fromYaml(it)
     }.required()
 
-    private val metrics = Metrics()
-
     companion object {
         val logger: FluentLogger = FluentLogger.forEnclosingClass()
     }
 
     override fun run() {
+        val metrics = Metrics()
         JvmMetrics.builder().register()
 
         val httpServerLife = HTTPServerLife(buildConfiguration())
