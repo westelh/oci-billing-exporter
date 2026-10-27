@@ -69,24 +69,28 @@ class Run : CliktCommand() {
 
     private fun getAuthentication(): AbstractAuthenticationDetailsProvider {
         return with(config.auth) {
-            runCatching {
-                loadFileConfig(config)
-            }.recoverCatching {
-                logger.atFiner().withCause(it).log("File config is invalid.")
-                logger.atFine().log("Recovering authentication by instance principals.")
-                loadInstancePrincipalConfig(
-                    instancePrincipal ?: Config.AuthConfig.InstancePrincipalConfig()
-                )
-            }.recoverCatching {
-                logger.atFiner().withCause(it).log("Instance principal is not available.")
-                logger.atFine().log("Recovering authentication by resource principals.")
-                loadResourcePrincipalConfig(
-                    resourcePrincipal ?: Config.AuthConfig.ResourcePrincipalConfig()
-                )
-            }.getOrElse {
-                logger.atFiner().withCause(it).log("Resource principal is not available.")
-                throw RuntimeException("All of authentication method failed.")
-            }
+            loadAuthenticationWithFallback(
+                file = { loadFileConfig(config) },
+                instancePrincipal = {
+                    loadInstancePrincipalConfig(instancePrincipal ?: Config.AuthConfig.InstancePrincipalConfig())
+                },
+                resourcePrincipal = {
+                    loadResourcePrincipalConfig(resourcePrincipal ?: Config.AuthConfig.ResourcePrincipalConfig())
+                },
+                onFailure = { method, error ->
+                    when (method) {
+                        "File config" -> {
+                            logger.atFiner().withCause(error).log("File config is invalid.")
+                            logger.atFine().log("Recovering authentication by instance principals.")
+                        }
+                        "Instance principal" -> {
+                            logger.atFiner().withCause(error).log("Instance principal is not available.")
+                            logger.atFine().log("Recovering authentication by resource principals.")
+                        }
+                        "Resource principal" -> logger.atFiner().withCause(error).log("Resource principal is not available.")
+                    }
+                }
+            )
         }
     }
 
@@ -101,6 +105,18 @@ class Run : CliktCommand() {
             return HTTPServer.builder().port(port).inetAddress(host)
         }
     }
+}
+
+internal fun <T> loadAuthenticationWithFallback(
+    file: () -> T,
+    instancePrincipal: () -> T,
+    resourcePrincipal: () -> T,
+    onFailure: (String, Throwable) -> Unit = { _, _ -> }
+): T {
+    runCatching(file).onFailure { onFailure("File config", it) }.getOrNull()?.let { return it }
+    runCatching(instancePrincipal).onFailure { onFailure("Instance principal", it) }.getOrNull()?.let { return it }
+    return runCatching(resourcePrincipal).onFailure { onFailure("Resource principal", it) }
+        .getOrElse { throw RuntimeException("All of authentication method failed.", it) }
 }
 
 suspend fun <R> repeatInfinite(delay: Duration, job: suspend CoroutineScope.() -> R) {
