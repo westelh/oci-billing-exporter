@@ -10,8 +10,10 @@ class Main {
         @JvmStatic
         fun main(args: Array<String>) {
             configureLogManager()
-            App().subcommands(Run(), DumpConfigSchema()).main(args)
+            createCli().main(args)
         }
+
+        internal fun createCli() = App().subcommands(Run(), DumpConfigSchema())
     }
 }
 
