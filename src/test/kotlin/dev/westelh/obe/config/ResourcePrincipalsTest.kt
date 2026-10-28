@@ -14,7 +14,8 @@ import kotlin.system.exitProcess
 
 // The resource principal provider is configured only through environment variables, which cannot be
 // changed inside a running JVM. Each case therefore runs loadResourcePrincipalConfig in a child JVM
-// whose environment contains nothing but the variables given here.
+// whose environment contains nothing but the variables given here, and whose home directory is empty
+// (the region lookup checks ~/.oci/developer-tool-configuration.json).
 class ResourcePrincipalsTest : StringSpec({
     "builds a v2.2 provider from an RPST and PEM passed as values, without network access" {
         val pem = generateRsaKeyPair().privateKeyPem()
@@ -22,6 +23,7 @@ class ResourcePrincipalsTest : StringSpec({
 
         val result = runInChildJvm(
             ResourcePrincipalProbe::class,
+            home = tempdir(),
             env = mapOf(
                 "OCI_RESOURCE_PRINCIPAL_VERSION" to "2.2",
                 "OCI_RESOURCE_PRINCIPAL_RPST" to rpst,
@@ -49,6 +51,7 @@ class ResourcePrincipalsTest : StringSpec({
 
         val result = runInChildJvm(
             ResourcePrincipalProbe::class,
+            home = tempdir(),
             env = mapOf(
                 "OCI_RESOURCE_PRINCIPAL_VERSION" to "2.2",
                 "OCI_RESOURCE_PRINCIPAL_RPST" to rpstFile.path,
@@ -67,7 +70,7 @@ class ResourcePrincipalsTest : StringSpec({
     }
 
     "fails when OCI_RESOURCE_PRINCIPAL_VERSION is not set" {
-        val result = runInChildJvm(ResourcePrincipalProbe::class)
+        val result = runInChildJvm(ResourcePrincipalProbe::class, home = tempdir())
 
         withClue(result.toString()) {
             result.exitCode shouldBe 1
@@ -78,6 +81,7 @@ class ResourcePrincipalsTest : StringSpec({
     "fails when the v2.2 RPST is not set" {
         val result = runInChildJvm(
             ResourcePrincipalProbe::class,
+            home = tempdir(),
             env = mapOf(
                 "OCI_RESOURCE_PRINCIPAL_VERSION" to "2.2",
                 "OCI_RESOURCE_PRINCIPAL_PRIVATE_PEM" to generateRsaKeyPair().privateKeyPem(),

@@ -56,22 +56,28 @@ data class ChildJvmResult(val exitCode: Int, val stdout: String, val stderr: Str
 }
 
 /**
- * Runs [mainClass] in a new JVM with the test classpath, an environment containing only [env],
- * and the given system properties. The empty environment keeps OCI_* variables of the developer
- * or CI machine (e.g. OCI_CONFIG_FILE, OCI_RESOURCE_PRINCIPAL_*) from leaking into the test.
+ * Runs [mainClass] in a new JVM with the test classpath, `user.home` set to [home], and an
+ * environment containing only [env].
+ *
+ * The SDK resolves files under `~/.oci` (the config file, but also e.g.
+ * `developer-tool-configuration.json`, which every region lookup checks) against `user.home`, and
+ * reads OCI_* variables such as OCI_CONFIG_FILE or OCI_RESOURCE_PRINCIPAL_*. Running the provider
+ * here keeps the developer's or CI machine's own home directory and environment out of the test.
  */
 fun runInChildJvm(
     mainClass: KClass<*>,
+    home: File,
     env: Map<String, String> = emptyMap(),
-    systemProperties: Map<String, String> = emptyMap(),
+    args: List<String> = emptyList(),
 ): ChildJvmResult {
     val java = File(System.getProperty("java.home"), "bin/java").path
     val command = buildList {
         add(java)
         add("-cp")
         add(System.getProperty("java.class.path"))
-        systemProperties.forEach { (key, value) -> add("-D$key=$value") }
+        add("-Duser.home=${home.path}")
         add(mainClass.java.name)
+        addAll(args)
     }
     val stdout = File.createTempFile("child-jvm", ".out")
     val stderr = File.createTempFile("child-jvm", ".err")
