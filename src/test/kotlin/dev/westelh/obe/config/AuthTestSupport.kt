@@ -69,7 +69,6 @@ fun runInChildJvm(
     home: File,
     env: Map<String, String> = emptyMap(),
     args: List<String> = emptyList(),
-    jvmArgs: List<String> = emptyList(),
 ): ChildJvmResult {
     val java = File(System.getProperty("java.home"), "bin/java").path
     val command = buildList {
@@ -77,7 +76,6 @@ fun runInChildJvm(
         add("-cp")
         add(System.getProperty("java.class.path"))
         add("-Duser.home=${home.path}")
-        addAll(jvmArgs)
         add(mainClass.java.name)
         addAll(args)
     }
