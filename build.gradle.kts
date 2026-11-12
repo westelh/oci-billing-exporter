@@ -21,7 +21,7 @@ dependencies {
     // Kotlin libraries (stdlib is added by the Kotlin JVM plugin).
     implementation(platform("org.jetbrains.kotlin:kotlin-bom:2.4.21"))
 
-    implementation(platform("com.oracle.oci.sdk:oci-java-sdk-bom:3.97.2"))
+    implementation(platform("com.oracle.oci.sdk:oci-java-sdk-bom:3.100.0"))
     implementation("com.oracle.oci.sdk:oci-java-sdk-common-httpclient-jersey3")
     implementation("com.oracle.oci.sdk:oci-java-sdk-core")
     implementation("com.oracle.oci.sdk:oci-java-sdk-objectstorage")
