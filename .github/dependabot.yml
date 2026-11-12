@@ -15,3 +15,10 @@ updates:
       - dependency-name: "com.github.victools:jsonschema-generator-bom"
         update-types:
           - "version-update:semver-major"
+      # Kotlin 2.4.21 fully supports Gradle only through 9.7.0. Hold the wrapper
+      # on 9.8.x (patch updates only) until a Kotlin release covers newer Gradle;
+      # see docs/gradle9-migration.md.
+      - dependency-name: "gradle-wrapper"
+        update-types:
+          - "version-update:semver-minor"
+          - "version-update:semver-major"

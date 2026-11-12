@@ -26,6 +26,15 @@ build-plugin dependencies and do not become application runtime dependencies.
 The wrapper distribution is pinned with the upstream SHA-256 checksum, and the
 wrapper scripts and JAR are regenerated using the selected Gradle version.
 
+## Wrapper update freeze
+
+To avoid drifting further from Kotlin's fully supported Gradle range, Dependabot
+ignores minor and major `gradle-wrapper` updates and still proposes 9.8.x patch
+releases. Lift the freeze once a stable Kotlin release (expected: 2.5.0) is
+available: check its fully supported Gradle range, update Kotlin and the wrapper
+together to a supported combination, and remove the ignore rule if the range
+covers the latest Gradle 9 release. Treat Gradle 10 as a separate migration.
+
 ## Validation
 
 Local validation on JDK 17 passed: `clean build` (15 tests, no failures or
